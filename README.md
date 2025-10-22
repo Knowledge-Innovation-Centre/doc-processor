@@ -1,6 +1,22 @@
 # DocProcessor
 
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![CI Status](https://github.com/Knowledge-Innovation-Centre/doc-processor/workflows/CI/badge.svg)](https://github.com/Knowledge-Innovation-Centre/doc-processor/actions)
+
 A Python library for processing documents with OCR, semantic chunking, and LLM-based summarization. Designed for building semantic search systems and document analysis workflows.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Advanced Usage](#advanced-usage)
+- [API Reference](#api-reference)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
@@ -13,16 +29,24 @@ A Python library for processing documents with OCR, semantic chunking, and LLM-b
 
 ## Installation
 
-### Basic Installation
+### From PyPI (Coming Soon)
 
 ```bash
 pip install docprocessor
 ```
 
-### With Meilisearch Support
+### From GitHub
 
 ```bash
-pip install docprocessor[meilisearch]
+pip install git+https://github.com/Knowledge-Innovation-Centre/doc-processor.git
+```
+
+### For Development
+
+```bash
+git clone https://github.com/Knowledge-Innovation-Centre/doc-processor.git
+cd doc-processor
+pip install -e ".[dev]"
 ```
 
 ### System Dependencies
@@ -246,7 +270,7 @@ Each component can be used independently or through the unified `DocumentProcess
 
 ## Requirements
 
-**Python**: 3.9+
+**Python**: 3.8+ (tested on 3.8, 3.9, 3.10, 3.11, 3.12)
 
 **Core Dependencies:**
 - pdfminer.six - PDF text extraction
@@ -257,7 +281,6 @@ Each component can be used independently or through the unified `DocumentProcess
 - python-docx - DOCX extraction
 - langchain-text-splitters - Semantic chunking
 - tiktoken - Token counting
-- numpy - Numerical operations
 
 **Optional:**
 - meilisearch - Search engine integration
@@ -270,14 +293,132 @@ See the `examples/` directory for more usage examples:
 - `multi_environment.py` - Indexing to multiple environments
 - `custom_chunking.py` - Advanced chunking options
 
+## Development
+
+### Using GitHub Codespaces (Recommended)
+
+The easiest way to start developing:
+
+1. Click the **Code** button on GitHub
+2. Select **Codespaces** → **Create codespace on main**
+3. Wait for the environment to build (includes all dependencies)
+4. Start coding!
+
+The devcontainer automatically installs:
+- Python 3.11
+- All system dependencies (Tesseract, Poppler)
+- Python dependencies in editable mode
+- Pre-commit hooks
+- VS Code extensions (Black, isort, flake8, etc.)
+
+### Local Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Knowledge-Innovation-Centre/doc-processor.git
+cd doc-processor
+
+# Install system dependencies
+# Ubuntu/Debian
+sudo apt-get install tesseract-ocr poppler-utils
+
+# macOS
+brew install tesseract poppler
+
+# Install Python dependencies
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=docprocessor
+```
+
+### Code Quality
+
+We use automated tools to maintain code quality:
+
+```bash
+# Format code
+black docprocessor tests
+
+# Sort imports
+isort docprocessor tests
+
+# Lint
+flake8 docprocessor tests
+
+# Type check
+mypy docprocessor
+
+# Or run all checks with pre-commit
+pre-commit run --all-files
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# With coverage report
+pytest --cov=docprocessor --cov-report=html
+
+# Run specific test file
+pytest tests/test_processor.py -v
+
+# Run tests matching pattern
+pytest -k "test_extract" -v
+```
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We love contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
+
+- Development setup
+- Code style guidelines
+- Testing requirements
+- Pull request process
+- Issue reporting
+
+Quick tips:
+- Use the devcontainer for consistent environment
+- Write tests for new features
+- Follow PEP 8 and use pre-commit hooks
+- Update documentation for API changes
+- Add entries to CHANGELOG.md
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
 
 ## License
 
-MIT License
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-For issues and questions, please use the GitHub issue tracker.
+- **Issues**: [GitHub Issues](https://github.com/Knowledge-Innovation-Centre/doc-processor/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Knowledge-Innovation-Centre/doc-processor/discussions)
+- **Email**: info@knowledgeinnovation.eu
+
+## Citation
+
+If you use docprocessor in your research or project, please cite:
+
+```bibtex
+@software{docprocessor2025,
+  title = {docprocessor: Intelligent Document Processing Library},
+  author = {Knowledge Innovation Centre},
+  year = {2025},
+  url = {https://github.com/Knowledge-Innovation-Centre/doc-processor}
+}
+```
+
+---
+
+Made with ❤️ by [Knowledge Innovation Centre](https://knowledgeinnovation.eu)

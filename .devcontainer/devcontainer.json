@@ -1,0 +1,72 @@
+{
+  "name": "docprocessor Library Development",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    }
+  },
+
+  "postCreateCommand": "chmod +x .devcontainer/setup.sh && .devcontainer/setup.sh",
+
+  "containerEnv": {
+    "PYTHONPATH": "${containerWorkspaceFolder}"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.flake8",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "davidanson.vscode-markdownlint",
+        "redhat.vscode-yaml"
+      ],
+
+      "settings": {
+        // Python interpreter
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
+
+        // Type checking
+        "python.analysis.typeCheckingMode": "basic",
+
+        // Testing setup
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"],
+        "python.testing.cwd": "${containerWorkspaceFolder}",
+
+        // Code formatting on save
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "always"
+        },
+
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true
+        },
+
+        // Black formatter
+        "black-formatter.args": ["--line-length", "100"],
+
+        // isort
+        "isort.args": ["--profile", "black", "--line-length", "100"],
+
+        // flake8
+        "flake8.args": [
+          "--max-line-length=100",
+          "--extend-ignore=E203,W503"
+        ]
+      }
+    }
+  },
+
+  "remoteEnv": {
+    "PYTHONPATH": "${containerWorkspaceFolder}"
+  }
+}
