@@ -43,6 +43,20 @@ else
 fi
 
 echo ""
+# Install Claude Code
+echo "🤖 Installing Claude Code..."
+if command -v npm > /dev/null 2>&1; then
+    npm install -g @anthropic-ai/claude-code
+    if command -v claude > /dev/null 2>&1; then
+        echo "✅ Claude Code installed successfully"
+    else
+        echo "⚠️ Claude Code installation may have failed"
+    fi
+else
+    echo "⚠️ npm not found, skipping Claude Code installation"
+fi
+
+echo ""
 echo "✅ Setup complete!"
 echo ""
 echo "Next steps:"
@@ -51,4 +65,5 @@ echo "  • Run tests with coverage: pytest --cov=docprocessor"
 echo "  • Format code: black docprocessor tests"
 echo "  • Sort imports: isort docprocessor tests"
 echo "  • Type check: mypy docprocessor"
+echo "  • Use Claude Code: claude"
 echo ""
