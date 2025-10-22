@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ProcessResult:
-    """Result of document processing."""
-    text: str
-    chunks: List[DocumentChunk] = field(default_factory=list)
-    summary: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    page_count: int = 1
-    chunk_count: int = 0
+      """Result of document processing."""
+      text: str = ""  # Add default empty string
+      chunks: List[DocumentChunk] = field(default_factory=list)
+      summary: Optional[str] = None
+      metadata: Dict[str, Any] = field(default_factory=dict)
+      page_count: int = 1
+      chunk_count: int = 0
 
 
 class DocumentProcessor:
