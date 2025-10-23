@@ -6,8 +6,6 @@ from dataclasses import dataclass
 from io import BytesIO
 from typing import List
 
-logger = logging.getLogger(__name__)
-
 import cv2
 import numpy as np
 import pytesseract
@@ -15,6 +13,8 @@ from pdf2image import convert_from_bytes
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
