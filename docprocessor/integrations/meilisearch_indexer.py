@@ -21,7 +21,8 @@ class MeiliSearchIndexer:
         self,
         url: str,
         api_key: str,
-        index_prefix: Optional[str] = None
+        index_prefix: Optional[str] = None,
+        client: Optional[Any] = None
     ):
         """
         Initialize the Meilisearch indexer.
@@ -30,22 +31,32 @@ class MeiliSearchIndexer:
             url: Meilisearch server URL
             api_key: Meilisearch API key
             index_prefix: Optional prefix for index names (e.g., 'dev_', 'prod_')
+            client: Optional pre-configured Meilisearch client (for testing)
         """
-        try:
-            import meilisearch
-        except ImportError:
-            raise ImportError(
-                "meilisearch not installed. Install with: pip install meilisearch"
-            )
-
-        self.client = meilisearch.Client(url, api_key)
+        self.url = url
+        self.api_key = api_key
         self.index_prefix = index_prefix or ""
 
-    def _get_index_name(self, base_name: str) -> str:
+        if client is None:
+            try:
+                import meilisearch
+            except ImportError:
+                raise ImportError(
+                    "meilisearch not installed. Install with: pip install meilisearch"
+                )
+            client = meilisearch.Client(url, api_key)
+
+        self.client = client
+
+    def _get_prefixed_index_name(self, base_name: str) -> str:
         """Get full index name with optional prefix."""
         if self.index_prefix:
             return f"{self.index_prefix}{base_name}"
         return base_name
+
+    def _get_index_name(self, base_name: str) -> str:
+        """Alias for backward compatibility."""
+        return self._get_prefixed_index_name(base_name)
 
     def index_chunks(
         self,

@@ -8,10 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Production-grade test suite with 144 tests and 81% coverage
+- Configuration management module with ProcessorConfig and MeiliSearchConfig
+- Custom exception hierarchy with 11 exception classes
+- Comprehensive test coverage for all core modules:
+  - test_config.py (33 tests) - Configuration management with env/file loading
+  - test_exceptions.py (27 tests) - Exception hierarchy and inheritance
+  - test_extractor.py (18 tests) - Multi-format content extraction
+  - test_summarizer.py (17 tests) - AI summarization with fallback
+  - test_meilisearch.py (17 tests) - Search integration
+  - test_chunker.py (18 tests) - Semantic text chunking
+  - test_processor.py (14 tests) - End-to-end document processing
+- Dependency injection pattern for MeiliSearchIndexer (better testability)
 - Devcontainer configuration for GitHub Codespaces and VS Code Remote Containers
 - Modern Python packaging with `pyproject.toml`
 - Pre-commit hooks for code quality (Black, isort, flake8, mypy)
-- GitHub Actions CI/CD pipeline
+- GitHub Actions CI/CD pipeline with multi-Python version testing
 - Comprehensive test configuration with coverage reporting
 - CONTRIBUTING.md with contribution guidelines
 - This CHANGELOG.md file
@@ -19,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Enhanced README.md with better documentation
 - Improved project structure and organization
+- Refactored MeiliSearchIndexer to support dependency injection for testing
 
 ## [1.0.0] - 2025-10-22
 
@@ -31,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI-powered summarization with BYOC (Bring Your Own Client) pattern
 - Meilisearch integration with environment prefix support
 - Two-index architecture support (chunks and documents)
-- Comprehensive test suite (66 tests across 3 test files)
+- Initial test suite covering core functionality
 - ContentExtractor with support for multiple file formats
 - DocumentChunker with configurable chunk sizes and overlap
 - DocumentSummarizer with customizable temperature and word targets

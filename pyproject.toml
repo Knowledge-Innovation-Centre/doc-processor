@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -51,6 +52,7 @@ dev = [
     "flake8>=7.0.0",
     "mypy>=1.8.0",
     "pre-commit>=3.6.0",
+    "reportlab>=4.0.0",  # For PDF fixture generation in tests
 ]
 
 docs = [
@@ -110,7 +112,7 @@ fail_under = 80
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py38", "py39", "py310", "py311", "py312", "py313"]
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -142,3 +144,7 @@ warn_unused_configs = true
 disallow_untyped_defs = false
 check_untyped_defs = true
 ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "docs", "examples"]
+skips = ["B101"]  # Skip assert_used warnings in tests

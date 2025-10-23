@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="docprocessor",
-    version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    version="1.0.0",
+    author="Knowledge Innovation Centre",
+    author_email="info@knowledgeinnovation.eu",
     description="A Python library for document processing with OCR, chunking, and summarization",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/docprocessor",
+    url="https://github.com/Knowledge-Innovation-Centre/doc-processor",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
