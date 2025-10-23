@@ -10,6 +10,7 @@ This example demonstrates:
 
 import os
 from pathlib import Path
+
 from docprocessor import DocumentProcessor, MeiliSearchIndexer
 
 
@@ -69,7 +70,7 @@ def example_basic_indexing():
             chunk=True,
             file_id="doc-001",
             output_id="output-001",
-            project_id=1
+            project_id=1,
         )
 
         print(f"\nProcessed document: {temp_file.name}")
@@ -80,9 +81,7 @@ def example_basic_indexing():
 
         # Index chunks
         index_result = indexer.index_chunks(
-            chunks=search_docs,
-            index_name="document_chunks",
-            primary_key='id'
+            chunks=search_docs, index_name="document_chunks", primary_key="id"
         )
 
         print(f"\nIndexed to Meilisearch:")
@@ -129,31 +128,25 @@ def example_two_index_architecture():
                 chunk=True,
                 file_id=f"file-{i+1}",
                 output_id=f"output-{i+1}",
-                project_id=1
+                project_id=1,
             )
 
             # INDEX 1: Document chunks (for semantic search)
             search_docs = processor.chunks_to_search_documents(result.chunks)
-            indexer.index_chunks(
-                chunks=search_docs,
-                index_name="document_chunks"
-            )
+            indexer.index_chunks(chunks=search_docs, index_name="document_chunks")
 
             # INDEX 2: Document metadata (for filtering and overview)
             doc_metadata = {
-                'id': f"file-{i+1}",
-                'filename': filename,
-                'text_length': len(result.text),
-                'chunk_count': len(result.chunks),
-                'page_count': result.page_count,
-                'project_id': 1,
-                'indexed_at': "2025-10-22T10:00:00Z"
+                "id": f"file-{i+1}",
+                "filename": filename,
+                "text_length": len(result.text),
+                "chunk_count": len(result.chunks),
+                "page_count": result.page_count,
+                "project_id": 1,
+                "indexed_at": "2025-10-22T10:00:00Z",
             }
 
-            indexer.index_document(
-                document=doc_metadata,
-                index_name="documents"
-            )
+            indexer.index_document(document=doc_metadata, index_name="documents")
 
             print(f"\nIndexed: {filename}")
             print(f"  Chunks indexed: {len(search_docs)}")
@@ -179,24 +172,16 @@ def example_searching():
     indexer = MeiliSearchIndexer(url=url, api_key=api_key)
 
     # Search queries
-    queries = [
-        "machine learning",
-        "climate change",
-        "renewable energy"
-    ]
+    queries = ["machine learning", "climate change", "renewable energy"]
 
     for query in queries:
         print(f"\nSearching for: '{query}'")
         print("-" * 60)
 
-        results = indexer.search(
-            query=query,
-            index_name="document_chunks",
-            limit=3
-        )
+        results = indexer.search(query=query, index_name="document_chunks", limit=3)
 
-        if results['hits']:
-            for i, hit in enumerate(results['hits'], 1):
+        if results["hits"]:
+            for i, hit in enumerate(results["hits"], 1):
                 print(f"\n{i}. {hit.get('filename', 'Unknown')}")
                 print(f"   Chunk {hit.get('chunk_number', 0)} of {hit.get('total_chunks', 0)}")
                 print(f"   Preview: {hit.get('chunk_preview', '')[:100]}...")
@@ -222,10 +207,7 @@ def example_filtering():
     # Search with filters
     print("\nSearch with project filter:")
     results = indexer.search(
-        query="energy",
-        index_name="document_chunks",
-        limit=5,
-        filter="project_id = 1"
+        query="energy", index_name="document_chunks", limit=5, filter="project_id = 1"
     )
 
     print(f"Found {len(results['hits'])} results for project 1")
@@ -233,10 +215,7 @@ def example_filtering():
     # Search specific file
     print("\nSearch within specific file:")
     results = indexer.search(
-        query="climate",
-        index_name="document_chunks",
-        limit=5,
-        filter="file_id = 'file-1'"
+        query="climate", index_name="document_chunks", limit=5, filter="file_id = 'file-1'"
     )
 
     print(f"Found {len(results['hits'])} results in file-1")
@@ -259,25 +238,18 @@ def example_index_management():
 
     # Create index
     print("\nCreating index...")
-    result = indexer.create_index(
-        index_name="test_index",
-        primary_key='id'
-    )
+    result = indexer.create_index(index_name="test_index", primary_key="id")
     print(f"  Created: {result}")
 
     # Delete specific document
     print("\nDeleting document...")
-    result = indexer.delete_document(
-        document_id="file-1",
-        index_name="documents"
-    )
+    result = indexer.delete_document(document_id="file-1", index_name="documents")
     print(f"  Deleted: {result}")
 
     # Delete documents by filter
     print("\nDeleting documents by filter...")
     result = indexer.delete_documents_by_filter(
-        filter_expression="project_id = 999",
-        index_name="document_chunks"
+        filter_expression="project_id = 999", index_name="document_chunks"
     )
     print(f"  Deleted: {result}")
 
@@ -299,22 +271,15 @@ def example_multi_environment():
     environments = {
         "dev": MeiliSearchIndexer(url, api_key, index_prefix="dev_"),
         "staging": MeiliSearchIndexer(url, api_key, index_prefix="staging_"),
-        "prod": MeiliSearchIndexer(url, api_key, index_prefix="prod_")
+        "prod": MeiliSearchIndexer(url, api_key, index_prefix="prod_"),
     }
 
-    sample_doc = {
-        'id': 'test-doc-1',
-        'filename': 'test.txt',
-        'content': 'Test document content'
-    }
+    sample_doc = {"id": "test-doc-1", "filename": "test.txt", "content": "Test document content"}
 
     for env_name, indexer in environments.items():
         print(f"\nIndexing to {env_name} environment...")
 
-        indexer.index_document(
-            document=sample_doc,
-            index_name="documents"
-        )
+        indexer.index_document(document=sample_doc, index_name="documents")
 
         # The actual index name will be prefixed
         actual_index = indexer._get_prefixed_index_name("documents")

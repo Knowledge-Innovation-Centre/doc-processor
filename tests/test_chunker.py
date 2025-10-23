@@ -2,7 +2,6 @@
 Tests for DocumentChunker.
 """
 
-
 from docprocessor.core.chunker import DocumentChunk, DocumentChunker
 
 

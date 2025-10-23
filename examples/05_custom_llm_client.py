@@ -9,7 +9,8 @@ This example demonstrates:
 """
 
 import time
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from docprocessor import DocumentProcessor
 
 
@@ -46,10 +47,10 @@ class RetryableLLMClient:
                 error_msg = str(e).lower()
 
                 # Check if error is retryable
-                if any(keyword in error_msg for keyword in ['rate limit', 'timeout', 'overloaded']):
+                if any(keyword in error_msg for keyword in ["rate limit", "timeout", "overloaded"]):
                     if attempt < self.max_retries - 1:
                         # Exponential backoff
-                        delay = self.base_delay * (2 ** attempt)
+                        delay = self.base_delay * (2**attempt)
                         print(f"Retry attempt {attempt + 1}/{self.max_retries} after {delay}s...")
                         time.sleep(delay)
                         continue
@@ -253,10 +254,7 @@ def example_multi_provider():
             return {"content": "Fallback provider succeeded!"}
 
     # Try failing provider first, then fallback to working one
-    multi_provider = MultiProviderLLMClient([
-        FailingProvider(),
-        WorkingProvider()
-    ])
+    multi_provider = MultiProviderLLMClient([FailingProvider(), WorkingProvider()])
 
     processor = DocumentProcessor(llm_client=multi_provider)
 

@@ -10,6 +10,7 @@ This example demonstrates:
 
 import os
 from pathlib import Path
+
 from docprocessor import DocumentProcessor
 
 
@@ -24,6 +25,7 @@ class OpenAIClient:
         # Import here to make it optional
         try:
             from openai import OpenAI
+
             self.client = OpenAI(api_key=api_key)
         except ImportError:
             print("Warning: openai package not installed. Install with: pip install openai")
@@ -36,10 +38,7 @@ class OpenAIClient:
 
         try:
             response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=1000
+                model=self.model, messages=messages, temperature=temperature, max_tokens=1000
             )
 
             return {"content": response.choices[0].message.content}
@@ -58,6 +57,7 @@ class AnthropicClient:
 
         try:
             from anthropic import Anthropic
+
             self.client = Anthropic(api_key=api_key)
         except ImportError:
             print("Warning: anthropic package not installed. Install with: pip install anthropic")
@@ -78,7 +78,7 @@ class AnthropicClient:
                 max_tokens=1000,
                 temperature=temperature,
                 system=system_msg,
-                messages=user_messages
+                messages=user_messages,
             )
 
             return {"content": response.content[0].text}
@@ -94,8 +94,8 @@ class MockLLMClient:
         """Return mock summary."""
         return {
             "content": "This is a mock summary. The document discusses important topics "
-                       "and provides valuable insights. Key points include various aspects "
-                       "of the subject matter, with detailed explanations and examples."
+            "and provides valuable insights. Key points include various aspects "
+            "of the subject matter, with detailed explanations and examples."
         }
 
 
@@ -108,13 +108,11 @@ def example_basic_summarization():
     # Use mock client (no API key required)
     llm_client = MockLLMClient()
 
-    processor = DocumentProcessor(
-        llm_client=llm_client,
-        summary_target_words=100
-    )
+    processor = DocumentProcessor(llm_client=llm_client, summary_target_words=100)
 
     # Create sample document
-    sample_text = """
+    sample_text = (
+        """
     Machine Learning in Healthcare
 
     Machine learning is revolutionizing healthcare by enabling earlier disease
@@ -133,17 +131,16 @@ def example_basic_summarization():
     Challenges remain, including data privacy concerns, algorithmic bias, and
     the need for regulatory frameworks. However, the potential benefits for
     patient care are immense.
-    """ * 5
+    """
+        * 5
+    )
 
     temp_file = Path("healthcare_ml.txt")
     temp_file.write_text(sample_text)
 
     try:
         result = processor.process(
-            file_path=temp_file,
-            extract_text=True,
-            chunk=True,
-            summarize=True
+            file_path=temp_file, extract_text=True, chunk=True, summarize=True
         )
 
         print(f"\nOriginal document: {len(result.text)} characters")
@@ -174,21 +171,19 @@ def example_openai_summarization():
         llm_client = OpenAIClient(api_key=api_key)
 
         processor = DocumentProcessor(
-            llm_client=llm_client,
-            summary_target_words=150,
-            llm_temperature=0.5
+            llm_client=llm_client, summary_target_words=150, llm_temperature=0.5
         )
 
-        sample_text = """
+        sample_text = (
+            """
         Climate change is one of the most pressing challenges facing humanity.
         Rising global temperatures are causing sea levels to rise, extreme
         weather events to become more frequent, and ecosystems to be disrupted.
-        """ * 10
-
-        summary = processor.summarize_text(
-            text=sample_text,
-            filename="climate_change.txt"
+        """
+            * 10
         )
+
+        summary = processor.summarize_text(text=sample_text, filename="climate_change.txt")
 
         print(f"\nOpenAI Summary:")
         print("-" * 60)
@@ -215,21 +210,18 @@ def example_anthropic_summarization():
     try:
         llm_client = AnthropicClient(api_key=api_key)
 
-        processor = DocumentProcessor(
-            llm_client=llm_client,
-            summary_target_words=200
-        )
+        processor = DocumentProcessor(llm_client=llm_client, summary_target_words=200)
 
-        sample_text = """
+        sample_text = (
+            """
         Quantum computing represents a paradigm shift in computation.
         Unlike classical computers that use bits, quantum computers use
         quantum bits or qubits, which can exist in superposition states.
-        """ * 10
-
-        summary = processor.summarize_text(
-            text=sample_text,
-            filename="quantum_computing.txt"
+        """
+            * 10
         )
+
+        summary = processor.summarize_text(text=sample_text, filename="quantum_computing.txt")
 
         print(f"\nAnthropic Summary:")
         print("-" * 60)
@@ -249,18 +241,19 @@ def example_fallback_summarization():
     # Create processor without LLM client
     processor = DocumentProcessor()
 
-    sample_text = """
+    sample_text = (
+        """
     Renewable energy sources are becoming increasingly important.
     Solar, wind, and hydroelectric power offer clean alternatives to
     fossil fuels. Investment in renewable infrastructure is growing
     rapidly as costs decline and efficiency improves.
-    """ * 20
+    """
+        * 20
+    )
 
     # This will use fallback (simple truncation)
     summary = processor.summarize_text(
-        text=sample_text,
-        filename="renewable_energy.txt",
-        use_fallback=True
+        text=sample_text, filename="renewable_energy.txt", use_fallback=True
     )
 
     print(f"\nFallback Summary (no LLM):")
@@ -282,16 +275,10 @@ def example_custom_summary_length():
     sample_text = "Artificial intelligence is transforming industries. " * 50
 
     # Short summary
-    short_processor = DocumentProcessor(
-        llm_client=llm_client,
-        summary_target_words=50
-    )
+    short_processor = DocumentProcessor(llm_client=llm_client, summary_target_words=50)
 
     # Long summary
-    long_processor = DocumentProcessor(
-        llm_client=llm_client,
-        summary_target_words=500
-    )
+    long_processor = DocumentProcessor(llm_client=llm_client, summary_target_words=500)
 
     short_summary = short_processor.summarize_text(sample_text, "ai.txt")
     long_summary = long_processor.summarize_text(sample_text, "ai.txt")
@@ -326,9 +313,7 @@ def example_error_handling():
     try:
         # This will fail
         summary = processor.summarize_text(
-            text=sample_text,
-            filename="test.txt",
-            use_fallback=False
+            text=sample_text, filename="test.txt", use_fallback=False
         )
     except Exception as e:
         print(f"Expected error caught: {e}")
@@ -336,11 +321,7 @@ def example_error_handling():
     print("\nUsing fallback on error...")
 
     # This will use fallback
-    summary = processor.summarize_text(
-        text=sample_text,
-        filename="test.txt",
-        use_fallback=True
-    )
+    summary = processor.summarize_text(text=sample_text, filename="test.txt", use_fallback=True)
 
     print(f"Fallback summary generated: {len(summary)} characters")
 

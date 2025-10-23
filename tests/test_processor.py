@@ -2,7 +2,6 @@
 Tests for DocumentProcessor main API.
 """
 
-
 import pytest
 
 from docprocessor import DocumentProcessor, ProcessResult

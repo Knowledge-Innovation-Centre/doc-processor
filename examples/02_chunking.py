@@ -9,6 +9,7 @@ This example demonstrates:
 """
 
 from pathlib import Path
+
 from docprocessor import DocumentProcessor
 
 
@@ -20,26 +21,29 @@ def example_custom_chunk_sizes():
 
     # Small chunks for fine-grained search
     small_processor = DocumentProcessor(
-        chunk_size=256,      # Small chunks
-        chunk_overlap=25,    # Minimal overlap
-        min_chunk_size=50    # Allow smaller chunks
+        chunk_size=256,  # Small chunks
+        chunk_overlap=25,  # Minimal overlap
+        min_chunk_size=50,  # Allow smaller chunks
     )
 
     # Large chunks for context preservation
     large_processor = DocumentProcessor(
-        chunk_size=2048,     # Large chunks
-        chunk_overlap=200,   # More overlap
-        min_chunk_size=500   # Enforce minimum size
+        chunk_size=2048,  # Large chunks
+        chunk_overlap=200,  # More overlap
+        min_chunk_size=500,  # Enforce minimum size
     )
 
     # Example text
-    sample_text = """
+    sample_text = (
+        """
     Artificial Intelligence has revolutionized many industries.
     Machine learning models can now process vast amounts of data.
     Deep learning networks have achieved remarkable accuracy.
     Natural language processing enables human-computer interaction.
     Computer vision systems can recognize objects and faces.
-    """ * 10  # Repeat to create longer text
+    """
+        * 10
+    )  # Repeat to create longer text
 
     # Create a temporary file
     temp_file = Path("temp_document.txt")
@@ -47,27 +51,23 @@ def example_custom_chunk_sizes():
 
     try:
         # Process with small chunks
-        small_result = small_processor.process(
-            file_path=temp_file,
-            extract_text=True,
-            chunk=True
-        )
+        small_result = small_processor.process(file_path=temp_file, extract_text=True, chunk=True)
 
         print(f"\nSmall chunks (256 tokens):")
         print(f"  Total chunks: {len(small_result.chunks)}")
-        print(f"  Average tokens: {sum(c.token_count for c in small_result.chunks) / len(small_result.chunks):.0f}")
+        print(
+            f"  Average tokens: {sum(c.token_count for c in small_result.chunks) / len(small_result.chunks):.0f}"
+        )
         print(f"  First chunk preview: {small_result.chunks[0].chunk_text[:100]}...")
 
         # Process with large chunks
-        large_result = large_processor.process(
-            file_path=temp_file,
-            extract_text=True,
-            chunk=True
-        )
+        large_result = large_processor.process(file_path=temp_file, extract_text=True, chunk=True)
 
         print(f"\nLarge chunks (2048 tokens):")
         print(f"  Total chunks: {len(large_result.chunks)}")
-        print(f"  Average tokens: {sum(c.token_count for c in large_result.chunks) / len(large_result.chunks):.0f}")
+        print(
+            f"  Average tokens: {sum(c.token_count for c in large_result.chunks) / len(large_result.chunks):.0f}"
+        )
         print(f"  First chunk preview: {large_result.chunks[0].chunk_text[:100]}...")
 
     finally:
@@ -121,7 +121,8 @@ def example_different_file_types():
 
     # Example 2: Markdown
     md_file = Path("example.md")
-    md_file.write_text("""
+    md_file.write_text(
+        """
 # Heading 1
 This is markdown content.
 
@@ -130,7 +131,9 @@ This is markdown content.
 - Bullet point 2
 
 Paragraph text here.
-""" * 10)
+"""
+        * 10
+    )
 
     try:
         # Process TXT
@@ -166,7 +169,7 @@ def example_chunk_metadata():
         output_id="output-67890",
         project_id=42,
         filename="important_doc.txt",
-        metadata={"author": "John Doe", "department": "Research"}
+        metadata={"author": "John Doe", "department": "Research"},
     )
 
     print(f"\nTotal chunks created: {len(chunks)}")
@@ -189,7 +192,8 @@ def example_optimal_chunk_size():
     print("Example 5: Choosing Optimal Chunk Size")
     print("=" * 60)
 
-    print("""
+    print(
+        """
 Chunk Size Guidelines:
 
 1. For Semantic Search (Embedding-based):
@@ -223,7 +227,8 @@ Factors to Consider:
 - Available compute resources
 - Storage constraints
 - Query patterns
-""")
+"""
+    )
 
 
 def main():

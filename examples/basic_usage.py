@@ -9,16 +9,14 @@ This example demonstrates:
 """
 
 from pathlib import Path
+
 from docprocessor import DocumentProcessor
+
 
 def main():
     # Initialize processor
     print("Initializing Document Processor...")
-    processor = DocumentProcessor(
-        chunk_size=512,
-        chunk_overlap=50,
-        min_chunk_size=100
-    )
+    processor = DocumentProcessor(chunk_size=512, chunk_overlap=50, min_chunk_size=100)
 
     # Example 1: Extract text from a document
     print("\n--- Example 1: Extract Text Only ---")
@@ -42,7 +40,8 @@ def main():
     print("\n--- Example 2: Full Processing with Chunking ---")
     try:
         # Create a sample text file for testing
-        sample_text = """
+        sample_text = (
+            """
         This is a sample document about artificial intelligence.
 
         Artificial intelligence (AI) is intelligence demonstrated by machines,
@@ -55,7 +54,9 @@ def main():
 
         Deep learning is part of a broader family of machine learning methods
         based on artificial neural networks with representation learning.
-        """ * 10  # Repeat to make it long enough for chunking
+        """
+            * 10
+        )  # Repeat to make it long enough for chunking
 
         sample_file = Path("sample_text.txt")
         sample_file.write_text(sample_text)
@@ -65,7 +66,7 @@ def main():
             file_path=sample_file,
             extract_text=True,
             chunk=True,
-            summarize=False  # Set to True if you have an LLM client
+            summarize=False,  # Set to True if you have an LLM client
         )
 
         print(f"File: {sample_file}")
@@ -95,6 +96,7 @@ def main():
         print(f"Converted {len(search_docs)} chunks to search document format")
         print(f"\nFirst search document keys: {list(search_docs[0].keys())}")
         print(f"Preview field: {search_docs[0]['chunk_preview'][:100]}...")
+
 
 if __name__ == "__main__":
     main()
