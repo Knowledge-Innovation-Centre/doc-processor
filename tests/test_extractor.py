@@ -2,9 +2,11 @@
 Tests for ContentExtractor.
 """
 
-import pytest
 from pathlib import Path
-from docprocessor.core.extractor import ContentExtractor, ContentExtractionError
+
+import pytest
+
+from docprocessor.core.extractor import ContentExtractionError, ContentExtractor
 
 
 class TestContentExtractor:
@@ -14,10 +16,10 @@ class TestContentExtractor:
         """Test extractor initialization."""
         extractor = ContentExtractor()
 
-        assert '.pdf' in extractor.supported_extensions
-        assert '.txt' in extractor.supported_extensions
-        assert '.docx' in extractor.supported_extensions
-        assert '.md' in extractor.supported_extensions
+        assert ".pdf" in extractor.supported_extensions
+        assert ".txt" in extractor.supported_extensions
+        assert ".docx" in extractor.supported_extensions
+        assert ".md" in extractor.supported_extensions
 
     def test_extract_txt_file(self, sample_txt_file):
         """Test extracting text from .txt file."""
@@ -25,12 +27,12 @@ class TestContentExtractor:
 
         result = extractor.extract(sample_txt_file)
 
-        assert 'text' in result
-        assert 'page_count' in result
-        assert 'metadata' in result
-        assert len(result['text']) > 0
-        assert result['page_count'] == 1
-        assert result['metadata']['format'] == 'txt'
+        assert "text" in result
+        assert "page_count" in result
+        assert "metadata" in result
+        assert len(result["text"]) > 0
+        assert result["page_count"] == 1
+        assert result["metadata"]["format"] == "txt"
 
     def test_extract_md_file(self, tmp_path):
         """Test extracting text from .md file."""
@@ -40,9 +42,9 @@ class TestContentExtractor:
         extractor = ContentExtractor()
         result = extractor.extract(md_file)
 
-        assert 'text' in result
-        assert 'markdown' in result['text'].lower() or 'heading' in result['text'].lower()
-        assert result['metadata']['format'] == 'md'
+        assert "text" in result
+        assert "markdown" in result["text"].lower() or "heading" in result["text"].lower()
+        assert result["metadata"]["format"] == "md"
 
     def test_extract_nonexistent_file(self):
         """Test extracting from non-existent file raises error."""
@@ -54,32 +56,32 @@ class TestContentExtractor:
     def test_extract_with_unicode(self, tmp_path):
         """Test extracting file with unicode characters."""
         unicode_file = tmp_path / "unicode.txt"
-        unicode_file.write_text("Hello 世界 🌍", encoding='utf-8')
+        unicode_file.write_text("Hello 世界 🌍", encoding="utf-8")
 
         extractor = ContentExtractor()
         result = extractor.extract(unicode_file)
 
-        assert "Hello" in result['text']
-        assert "世界" in result['text']
+        assert "Hello" in result["text"]
+        assert "世界" in result["text"]
 
     def test_extract_latin1_encoding(self, tmp_path):
         """Test extracting file with latin-1 encoding."""
         latin1_file = tmp_path / "latin1.txt"
-        latin1_file.write_bytes("Café résumé".encode('latin-1'))
+        latin1_file.write_bytes("Café résumé".encode("latin-1"))
 
         extractor = ContentExtractor()
         result = extractor.extract(latin1_file)
 
-        assert len(result['text']) > 0
+        assert len(result["text"]) > 0
 
     def test_is_supported(self):
         """Test is_supported method."""
         extractor = ContentExtractor()
 
-        assert extractor.is_supported('.pdf') is True
-        assert extractor.is_supported('.txt') is True
-        assert extractor.is_supported('.docx') is True
-        assert extractor.is_supported('.xyz') is False
+        assert extractor.is_supported(".pdf") is True
+        assert extractor.is_supported(".txt") is True
+        assert extractor.is_supported(".docx") is True
+        assert extractor.is_supported(".xyz") is False
 
     def test_extract_unsupported_file(self, tmp_path):
         """Test extracting unsupported file type."""
@@ -90,8 +92,8 @@ class TestContentExtractor:
         result = extractor.extract(unsupported_file)
 
         # Should fall back to text extraction
-        assert 'text' in result
-        assert result['text'] == "test content"
+        assert "text" in result
+        assert result["text"] == "test content"
 
     def test_extract_empty_file(self, tmp_path):
         """Test extracting empty file."""
@@ -101,8 +103,8 @@ class TestContentExtractor:
         extractor = ContentExtractor()
         result = extractor.extract(empty_file)
 
-        assert result['text'] == ""
-        assert result['page_count'] == 1
+        assert result["text"] == ""
+        assert result["page_count"] == 1
 
     def test_extract_large_file(self, tmp_path):
         """Test extracting large text file."""
@@ -113,8 +115,8 @@ class TestContentExtractor:
         extractor = ContentExtractor()
         result = extractor.extract(large_file)
 
-        assert len(result['text']) > 100000
-        assert result['page_count'] == 1
+        assert len(result["text"]) > 100000
+        assert result["page_count"] == 1
 
     def test_extract_docx_not_installed(self, tmp_path, monkeypatch):
         """Test DOCX extraction when python-docx is not installed."""
@@ -125,6 +127,7 @@ class TestContentExtractor:
 
         # Mock docx import to raise ImportError
         import builtins
+
         original_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):
@@ -143,11 +146,11 @@ class TestContentExtractor:
 
         result = extractor.extract(pdf_with_text_content)
 
-        assert 'text' in result
-        assert 'page_count' in result
-        assert result['metadata']['format'] == 'pdf'
-        assert result['metadata']['extraction_method'] == 'ocr_pipeline'
-        assert len(result['text']) > 0
+        assert "text" in result
+        assert "page_count" in result
+        assert result["metadata"]["format"] == "pdf"
+        assert result["metadata"]["extraction_method"] == "ocr_pipeline"
+        assert len(result["text"]) > 0
 
     def test_extract_docx_with_content(self, tmp_path):
         """Test extracting text from DOCX with paragraphs and tables."""
@@ -174,13 +177,13 @@ class TestContentExtractor:
         extractor = ContentExtractor()
         result = extractor.extract(docx_file)
 
-        assert 'text' in result
-        assert 'First paragraph' in result['text']
-        assert 'Second paragraph' in result['text']
-        assert result['metadata']['format'] == 'docx'
-        assert result['metadata']['extraction_method'] == 'python-docx'
-        assert result['metadata']['paragraph_count'] == 2
-        assert result['metadata']['table_count'] == 1
+        assert "text" in result
+        assert "First paragraph" in result["text"]
+        assert "Second paragraph" in result["text"]
+        assert result["metadata"]["format"] == "docx"
+        assert result["metadata"]["extraction_method"] == "python-docx"
+        assert result["metadata"]["paragraph_count"] == 2
+        assert result["metadata"]["table_count"] == 1
 
     def test_extract_docx_with_empty_paragraphs(self, tmp_path):
         """Test extracting DOCX skips empty paragraphs."""
@@ -201,13 +204,14 @@ class TestContentExtractor:
         result = extractor.extract(docx_file)
 
         # Should only count non-empty paragraphs
-        assert result['metadata']['paragraph_count'] == 2
+        assert result["metadata"]["paragraph_count"] == 2
 
     def test_extract_image_file(self, tmp_path):
         """Test extracting text from image using OCR."""
         try:
-            from PIL import Image
             import pytesseract
+            from PIL import Image
+
             # Check if tesseract is actually available
             pytesseract.get_tesseract_version()
         except (ImportError, pytesseract.TesseractNotFoundError):
@@ -215,33 +219,34 @@ class TestContentExtractor:
 
         # Create simple test image
         img_file = tmp_path / "test.png"
-        img = Image.new('RGB', (100, 30), color='white')
+        img = Image.new("RGB", (100, 30), color="white")
         img.save(img_file)
 
         extractor = ContentExtractor()
         result = extractor.extract(img_file)
 
-        assert 'text' in result
-        assert result['metadata']['format'] == 'png'
-        assert result['metadata']['extraction_method'] == 'tesseract_ocr'
-        assert 'image_size' in result['metadata']
+        assert "text" in result
+        assert result["metadata"]["format"] == "png"
+        assert result["metadata"]["extraction_method"] == "tesseract_ocr"
+        assert "image_size" in result["metadata"]
 
     def test_extract_image_missing_dependencies(self, tmp_path, monkeypatch):
         """Test image extraction fails gracefully without dependencies."""
         # Create a dummy image file
         img_file = tmp_path / "test.jpg"
-        img_file.write_bytes(b'\xff\xd8\xff\xe0')  # JPEG header
+        img_file.write_bytes(b"\xff\xd8\xff\xe0")  # JPEG header
 
         # Mock ImportError for PIL
         import builtins
+
         original_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):
-            if name in ('PIL', 'pytesseract'):
+            if name in ("PIL", "pytesseract"):
                 raise ImportError(f"No module named '{name}'")
             return original_import(name, *args, **kwargs)
 
-        monkeypatch.setattr(builtins, '__import__', mock_import)
+        monkeypatch.setattr(builtins, "__import__", mock_import)
 
         extractor = ContentExtractor()
 
@@ -251,13 +256,13 @@ class TestContentExtractor:
     def test_extract_docx_corruption(self, tmp_path):
         """Test DOCX extraction handles corrupted files."""
         try:
-            import docx
+            import docx  # noqa: F401
         except ImportError:
             pytest.skip("python-docx not installed")
 
         # Create a corrupted DOCX file
         bad_docx = tmp_path / "corrupt.docx"
-        bad_docx.write_bytes(b'not a real docx file')
+        bad_docx.write_bytes(b"not a real docx file")
 
         extractor = ContentExtractor()
 

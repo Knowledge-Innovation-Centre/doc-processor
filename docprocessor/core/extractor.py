@@ -8,7 +8,7 @@ Extracts text content from various file formats for indexing.
 
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict
 
 from .ocr import extract_pdf_for_llm
 
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class ContentExtractionError(Exception):
     """Raised when content extraction fails."""
+
     pass
 
 
@@ -33,8 +34,15 @@ class ContentExtractor:
 
     def __init__(self):
         self.supported_extensions = {
-            '.pdf', '.txt', '.md', '.docx',
-            '.png', '.jpg', '.jpeg', '.gif', '.bmp'
+            ".pdf",
+            ".txt",
+            ".md",
+            ".docx",
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".bmp",
         }
 
     def extract(self, file_path: Path) -> Dict[str, Any]:
@@ -63,13 +71,13 @@ class ContentExtractor:
             return self._extract_as_text(file_path)
 
         try:
-            if extension == '.pdf':
+            if extension == ".pdf":
                 return self._extract_pdf(file_path)
-            elif extension in {'.txt', '.md'}:
+            elif extension in {".txt", ".md"}:
                 return self._extract_text(file_path)
-            elif extension == '.docx':
+            elif extension == ".docx":
                 return self._extract_docx(file_path)
-            elif extension in {'.png', '.jpg', '.jpeg', '.gif', '.bmp'}:
+            elif extension in {".png", ".jpg", ".jpeg", ".gif", ".bmp"}:
                 return self._extract_image(file_path)
             else:
                 return self._extract_as_text(file_path)
@@ -81,21 +89,18 @@ class ContentExtractor:
         """Extract text from PDF using OCR pipeline."""
         logger.info(f"Extracting PDF: {file_path}")
 
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             pdf_bytes = f.read()
 
         text = extract_pdf_for_llm(pdf_bytes)
 
         # Count pages from text markers
-        page_count = text.count('<page_')
+        page_count = text.count("<page_")
 
         return {
-            'text': text,
-            'page_count': page_count if page_count > 0 else 1,
-            'metadata': {
-                'format': 'pdf',
-                'extraction_method': 'ocr_pipeline'
-            }
+            "text": text,
+            "page_count": page_count if page_count > 0 else 1,
+            "metadata": {"format": "pdf", "extraction_method": "ocr_pipeline"},
         }
 
     def _extract_text(self, file_path: Path) -> Dict[str, Any]:
@@ -103,20 +108,17 @@ class ContentExtractor:
         logger.info(f"Reading text file: {file_path}")
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 text = f.read()
         except UnicodeDecodeError:
             # Try with different encoding
-            with open(file_path, 'r', encoding='latin-1') as f:
+            with open(file_path, "r", encoding="latin-1") as f:
                 text = f.read()
 
         return {
-            'text': text,
-            'page_count': 1,
-            'metadata': {
-                'format': file_path.suffix[1:],
-                'extraction_method': 'direct_read'
-            }
+            "text": text,
+            "page_count": 1,
+            "metadata": {"format": file_path.suffix[1:], "extraction_method": "direct_read"},
         }
 
     def _extract_docx(self, file_path: Path) -> Dict[str, Any]:
@@ -135,7 +137,7 @@ class ContentExtractor:
 
             # Extract all paragraphs
             paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
-            text = '\n\n'.join(paragraphs)
+            text = "\n\n".join(paragraphs)
 
             # Extract tables
             tables_text = []
@@ -143,21 +145,21 @@ class ContentExtractor:
                 table_data = []
                 for row in table.rows:
                     row_data = [cell.text.strip() for cell in row.cells]
-                    table_data.append(' | '.join(row_data))
-                tables_text.append('\n'.join(table_data))
+                    table_data.append(" | ".join(row_data))
+                tables_text.append("\n".join(table_data))
 
             if tables_text:
-                text += '\n\n' + '\n\n'.join(tables_text)
+                text += "\n\n" + "\n\n".join(tables_text)
 
             return {
-                'text': text,
-                'page_count': 1,  # DOCX doesn't have clear page boundaries
-                'metadata': {
-                    'format': 'docx',
-                    'extraction_method': 'python-docx',
-                    'paragraph_count': len(paragraphs),
-                    'table_count': len(doc.tables)
-                }
+                "text": text,
+                "page_count": 1,  # DOCX doesn't have clear page boundaries
+                "metadata": {
+                    "format": "docx",
+                    "extraction_method": "python-docx",
+                    "paragraph_count": len(paragraphs),
+                    "table_count": len(doc.tables),
+                },
             }
         except Exception as e:
             logger.error(f"Error extracting DOCX: {e}")
@@ -171,22 +173,20 @@ class ContentExtractor:
             import pytesseract
             from PIL import Image
         except ImportError:
-            raise ContentExtractionError(
-                "PIL and pytesseract required for image extraction"
-            )
+            raise ContentExtractionError("PIL and pytesseract required for image extraction")
 
         try:
             image = Image.open(file_path)
             text = pytesseract.image_to_string(image)
 
             return {
-                'text': text,
-                'page_count': 1,
-                'metadata': {
-                    'format': file_path.suffix[1:],
-                    'extraction_method': 'tesseract_ocr',
-                    'image_size': image.size
-                }
+                "text": text,
+                "page_count": 1,
+                "metadata": {
+                    "format": file_path.suffix[1:],
+                    "extraction_method": "tesseract_ocr",
+                    "image_size": image.size,
+                },
             }
         except Exception as e:
             logger.error(f"Error extracting image: {e}")

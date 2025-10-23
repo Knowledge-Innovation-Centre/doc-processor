@@ -1,20 +1,21 @@
 # backend/app/utils/ocr.py
 
 import logging
-from io import BytesIO
-from dataclasses import dataclass
-from typing import List
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from io import BytesIO
+from typing import List
 
 logger = logging.getLogger(__name__)
 
-import numpy as np
 import cv2
-from PIL import Image
+import numpy as np
 import pytesseract
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextBox, LTTextLine, LAParams
 from pdf2image import convert_from_bytes
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LAParams, LTTextBox, LTTextLine
+from PIL import Image
+
 
 @dataclass
 class TextElement:
@@ -32,31 +33,32 @@ def extract_pdf_for_llm(pdf_bytes: bytes) -> str:
     try:
         all_elements: List[TextElement] = []
         pages_to_ocr: List[int] = []
-        
+
         # Safer text extraction with explicit PDFObjRef handling
         try:
             # Create LAParams for better extraction
             laparams = LAParams(
-                line_margin=0.5,
-                word_margin=0.1,
-                boxes_flow=0.5,
-                detect_vertical=True
+                line_margin=0.5, word_margin=0.1, boxes_flow=0.5, detect_vertical=True
             )
-            
+
             # Process each page safely
-            for page_num, page in enumerate(extract_pages(BytesIO(pdf_bytes), laparams=laparams), start=1):
+            for page_num, page in enumerate(
+                extract_pages(BytesIO(pdf_bytes), laparams=laparams), start=1
+            ):
                 page_elements = []
-                
+
                 # Safely iterate elements with PDFObjRef handling
                 for element in safe_iter_elements(page):
                     if isinstance(element, (LTTextBox, LTTextLine)):
-                        page_elements.append(TextElement(
-                            text=element.get_text().strip(),
-                            x=element.x0,
-                            y=element.y0,
-                            page_number=page_num
-                        ))
-                
+                        page_elements.append(
+                            TextElement(
+                                text=element.get_text().strip(),
+                                x=element.x0,
+                                y=element.y0,
+                                page_number=page_num,
+                            )
+                        )
+
                 if page_elements:
                     all_elements.extend(page_elements)
                 else:
@@ -73,12 +75,13 @@ def extract_pdf_for_llm(pdf_bytes: bytes) -> str:
                 all_elements.extend(ocr_elements)
             except Exception as ocr_e:
                 logger.error(f"OCR processing failed: {ocr_e}")
-        
+
         return format_for_llm(all_elements)
 
     except Exception as e:
         logger.error(f"Text extraction failed: {e}")
         raise
+
 
 # NEW HELPER FUNCTION: Safe iteration that handles PDFObjRef objects
 def safe_iter_elements(obj):
@@ -103,19 +106,16 @@ def perform_structured_ocr(pdf_bytes: bytes, pages_to_ocr: List[int]) -> List[Te
     """
     # Convert PDF pages to images at lower DPI for speed
     images = convert_from_bytes(pdf_bytes, dpi=150)
-    
+
     # Filter pages to OCR to only include pages that exist
     pages_to_ocr = [p for p in pages_to_ocr if 1 <= p <= len(images)]
-    
+
     if not pages_to_ocr:
         return []
 
     # Process pages in parallel
     with ThreadPoolExecutor() as pool:
-        results = pool.map(
-            lambda pg: _ocr_one_page(images[pg - 1], pg),
-            pages_to_ocr
-        )
+        results = pool.map(lambda pg: _ocr_one_page(images[pg - 1], pg), pages_to_ocr)
 
     # Flatten list of lists
     elements: List[TextElement] = []
@@ -132,40 +132,27 @@ def _ocr_one_page(image: Image.Image, page_num: int) -> List[TextElement]:
     # Preprocess image for better OCR accuracy
     pre = preprocess_image(image)
     data = pytesseract.image_to_data(
-        pre,
-        output_type=pytesseract.Output.DICT,
-        config='--oem 3 --psm 6'
+        pre, output_type=pytesseract.Output.DICT, config="--oem 3 --psm 6"
     )
 
     # Group words into lines to reduce element count
     lines = {}
-    for i, word in enumerate(data['text']):
+    for i, word in enumerate(data["text"]):
         if not word.strip():
             continue
 
-        key = (
-            data['block_num'][i],
-            data['par_num'][i],
-            data['line_num'][i]
-        )
+        key = (data["block_num"][i], data["par_num"][i], data["line_num"][i])
 
         if key not in lines:
-            lines[key] = {
-                'words': [],
-                'x': data['left'][i],
-                'y': data['top'][i]
-            }
+            lines[key] = {"words": [], "x": data["left"][i], "y": data["top"][i]}
 
-        lines[key]['words'].append(word)
+        lines[key]["words"].append(word)
 
     elements: List[TextElement] = []
     for v in lines.values():
-        elements.append(TextElement(
-            text=' '.join(v['words']),
-            x=v['x'],
-            y=v['y'],
-            page_number=page_num
-        ))
+        elements.append(
+            TextElement(text=" ".join(v["words"]), x=v["x"], y=v["y"], page_number=page_num)
+        )
 
     return elements
 

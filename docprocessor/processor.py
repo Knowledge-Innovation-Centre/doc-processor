@@ -7,26 +7,27 @@ Provides a simple interface for document processing operations.
 """
 
 import logging
-from pathlib import Path
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from .core.extractor import ContentExtractor, ContentExtractionError
-from .core.chunker import DocumentChunker, DocumentChunk
-from .core.summarizer import DocumentSummarizer, SummarizationError
+from .core.chunker import DocumentChunk, DocumentChunker
+from .core.extractor import ContentExtractionError, ContentExtractor
+from .core.summarizer import DocumentSummarizer
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ProcessResult:
-      """Result of document processing."""
-      text: str = ""  # Add default empty string
-      chunks: List[DocumentChunk] = field(default_factory=list)
-      summary: Optional[str] = None
-      metadata: Dict[str, Any] = field(default_factory=dict)
-      page_count: int = 1
-      chunk_count: int = 0
+    """Result of document processing."""
+
+    text: str = ""  # Add default empty string
+    chunks: List[DocumentChunk] = field(default_factory=list)
+    summary: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    page_count: int = 1
+    chunk_count: int = 0
 
 
 class DocumentProcessor:
@@ -44,7 +45,7 @@ class DocumentProcessor:
         min_chunk_size: int = 100,
         summary_target_words: int = 500,
         llm_client: Optional[Any] = None,
-        llm_temperature: float = 0.3
+        llm_temperature: float = 0.3,
     ):
         """
         Initialize the document processor.
@@ -60,14 +61,10 @@ class DocumentProcessor:
         """
         self.extractor = ContentExtractor()
         self.chunker = DocumentChunker(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            min_chunk_size=min_chunk_size
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, min_chunk_size=min_chunk_size
         )
         self.summarizer = DocumentSummarizer(
-            llm_client=llm_client,
-            target_words=summary_target_words,
-            temperature=llm_temperature
+            llm_client=llm_client, target_words=summary_target_words, temperature=llm_temperature
         )
         self.ocr_enabled = ocr_enabled
 
@@ -80,7 +77,7 @@ class DocumentProcessor:
         file_id: Optional[str] = None,
         output_id: Optional[str] = None,
         project_id: Optional[int] = None,
-        extraction_metadata: Optional[Dict[str, Any]] = None
+        extraction_metadata: Optional[Dict[str, Any]] = None,
     ) -> ProcessResult:
         """
         Process a document with extraction, chunking, and optional summarization.
@@ -105,9 +102,9 @@ class DocumentProcessor:
         if extract_text:
             try:
                 extraction = self.extractor.extract(file_path)
-                result.text = extraction['text']
-                result.page_count = extraction.get('page_count', 1)
-                result.metadata = extraction.get('metadata', {})
+                result.text = extraction["text"]
+                result.page_count = extraction.get("page_count", 1)
+                result.metadata = extraction.get("metadata", {})
                 logger.info(f"Extracted {len(result.text)} characters from {file_path.name}")
             except ContentExtractionError as e:
                 logger.error(f"Text extraction failed: {e}")
@@ -127,7 +124,7 @@ class DocumentProcessor:
                     output_id=output_id,
                     project_id=project_id,
                     filename=file_path.name,
-                    extraction_metadata=extraction_metadata or result.metadata
+                    extraction_metadata=extraction_metadata or result.metadata,
                 )
                 result.chunks = chunks
                 result.chunk_count = len(chunks)
@@ -140,9 +137,7 @@ class DocumentProcessor:
         if summarize and result.text:
             try:
                 summary = self.summarizer.summarize_with_fallback(
-                    text=result.text,
-                    filename=file_path.name,
-                    metadata=result.metadata
+                    text=result.text, filename=file_path.name, metadata=result.metadata
                 )
                 result.summary = summary
                 logger.info(f"Generated summary for {file_path.name}")
@@ -171,7 +166,7 @@ class DocumentProcessor:
         output_id: str = "unknown",
         project_id: int = 0,
         filename: str = "document.txt",
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> List[DocumentChunk]:
         """
         Chunk text into semantic segments.
@@ -193,14 +188,11 @@ class DocumentProcessor:
             output_id=output_id,
             project_id=project_id,
             filename=filename,
-            extraction_metadata=metadata
+            extraction_metadata=metadata,
         )
 
     def summarize_text(
-        self,
-        text: str,
-        filename: str = "document.txt",
-        use_fallback: bool = True
+        self, text: str, filename: str = "document.txt", use_fallback: bool = True
     ) -> str:
         """
         Generate a summary of text.
@@ -218,10 +210,7 @@ class DocumentProcessor:
         else:
             return self.summarizer.summarize(text, filename)
 
-    def chunks_to_search_documents(
-        self,
-        chunks: List[DocumentChunk]
-    ) -> List[Dict[str, Any]]:
+    def chunks_to_search_documents(self, chunks: List[DocumentChunk]) -> List[Dict[str, Any]]:
         """
         Convert chunks to Meilisearch document format.
 

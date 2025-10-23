@@ -3,6 +3,7 @@ Tests for DocumentSummarizer.
 """
 
 import pytest
+
 from docprocessor.core.summarizer import DocumentSummarizer, SummarizationError
 
 
@@ -20,9 +21,7 @@ class TestDocumentSummarizer:
     def test_init_with_llm_client(self, mock_llm_client):
         """Test summarizer initialization with LLM client."""
         summarizer = DocumentSummarizer(
-            llm_client=mock_llm_client,
-            target_words=300,
-            temperature=0.5
+            llm_client=mock_llm_client, target_words=300, temperature=0.5
         )
 
         assert summarizer.llm_client is not None
@@ -121,6 +120,7 @@ class TestDocumentSummarizer:
 
     def test_llm_client_interface(self, sample_text):
         """Test that LLM client must have complete_chat method."""
+
         class InvalidLLMClient:
             pass
 
@@ -132,6 +132,7 @@ class TestDocumentSummarizer:
 
     def test_llm_response_format(self, sample_text):
         """Test handling of different LLM response formats."""
+
         class CustomLLMClient:
             def complete_chat(self, messages, temperature):
                 return {"content": "Custom format summary."}
@@ -141,7 +142,6 @@ class TestDocumentSummarizer:
         summary = summarizer.summarize(sample_text, "test.txt")
 
         assert summary == "Custom format summary."
-
 
     def test_summarize_very_short_text(self):
         """Test summarization of very short text returns as-is."""
@@ -168,6 +168,7 @@ class TestDocumentSummarizer:
 
     def test_summarize_with_fallback_on_failure(self, sample_text):
         """Test summarize_with_fallback returns fallback on error."""
+
         class FailingLLMClient:
             def complete_chat(self, messages, temperature):
                 raise Exception("API error")
@@ -190,7 +191,7 @@ class TestDocumentSummarizer:
         fallback = summarizer._create_fallback_summary(text)
 
         # Should truncate at sentence boundary
-        assert fallback.endswith(('.',' [...]', '. [...]'))
+        assert fallback.endswith((".", " [...]", ". [...]"))
 
 
 class TestSummarizationError:

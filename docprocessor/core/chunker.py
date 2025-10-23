@@ -10,7 +10,7 @@ import logging
 import re
 import uuid
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DocumentChunk:
     """Represents a single chunk of a document."""
+
     chunk_id: str
     file_id: str
     output_id: str
@@ -39,12 +40,7 @@ class DocumentChunker:
     that respects sentence and paragraph boundaries.
     """
 
-    def __init__(
-        self,
-        chunk_size: int = 512,
-        chunk_overlap: int = 50,
-        min_chunk_size: int = 100
-    ):
+    def __init__(self, chunk_size: int = 512, chunk_overlap: int = 50, min_chunk_size: int = 100):
         """
         Initialize the chunker.
 
@@ -60,6 +56,7 @@ class DocumentChunker:
         # Initialize tokenizer for counting
         try:
             import tiktoken
+
             self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
         except ImportError:
             logger.warning("tiktoken not installed, using character-based estimation")
@@ -72,7 +69,7 @@ class DocumentChunker:
         output_id: str,
         project_id: int,
         filename: str,
-        extraction_metadata: Optional[Dict[str, Any]] = None
+        extraction_metadata: Optional[Dict[str, Any]] = None,
     ) -> List[DocumentChunk]:
         """
         Chunk a document into semantic segments.
@@ -119,7 +116,7 @@ class DocumentChunker:
                     chunk_text=self._clean_chunk_text(chunk_text),
                     token_count=token_count,
                     pages=pages,
-                    metadata=extraction_metadata or {}
+                    metadata=extraction_metadata or {},
                 )
                 chunks.append(chunk)
 
@@ -149,7 +146,7 @@ class DocumentChunker:
                 chunk_overlap=char_overlap,
                 length_function=len,
                 separators=["\n\n", "\n", ". ", " ", ""],
-                is_separator_regex=False
+                is_separator_regex=False,
             )
 
             chunks = splitter.split_text(text)
@@ -179,7 +176,7 @@ class DocumentChunker:
             if end < len(text):
                 # Look for sentence break within last 20% of chunk
                 search_start = end - int(char_chunk_size * 0.2)
-                sentence_end = text.rfind('. ', search_start, end)
+                sentence_end = text.rfind(". ", search_start, end)
 
                 if sentence_end > start:
                     end = sentence_end + 1
@@ -210,7 +207,7 @@ class DocumentChunker:
 
         Looks for <page_N> markers inserted by PDF extraction.
         """
-        page_pattern = r'<page_(\d+)>'
+        page_pattern = r"<page_(\d+)>"
         matches = re.findall(page_pattern, text)
 
         if matches:
@@ -225,13 +222,13 @@ class DocumentChunker:
         Removes PDF page markers and other extraction artifacts.
         """
         # Remove page markers
-        text = re.sub(r'<page_\d+>', '', text)
+        text = re.sub(r"<page_\d+>", "", text)
 
         # Remove column markers
-        text = re.sub(r'<col>(.*?)</col>', r'\1', text)
+        text = re.sub(r"<col>(.*?)</col>", r"\1", text)
 
         # Clean up whitespace
-        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)  # Max 2 newlines
+        text = re.sub(r"\n\s*\n\s*\n", "\n\n", text)  # Max 2 newlines
         text = text.strip()
 
         return text
@@ -247,18 +244,18 @@ class DocumentChunker:
             Dictionary ready for Meilisearch indexing
         """
         return {
-            'id': chunk.chunk_id,  # Use chunk_id as primary key
-            'file_id': chunk.file_id,
-            'output_id': chunk.output_id,
-            'project_id': chunk.project_id,
-            'filename': chunk.filename,
-            'chunk_number': chunk.chunk_number,
-            'total_chunks': chunk.total_chunks,
-            'chunk_text': chunk.chunk_text,
-            'chunk_preview': chunk.chunk_text[:200],  # First 200 chars
-            'token_count': chunk.token_count,
-            'pages': chunk.pages,
-            'metadata': chunk.metadata
+            "id": chunk.chunk_id,  # Use chunk_id as primary key
+            "file_id": chunk.file_id,
+            "output_id": chunk.output_id,
+            "project_id": chunk.project_id,
+            "filename": chunk.filename,
+            "chunk_number": chunk.chunk_number,
+            "total_chunks": chunk.total_chunks,
+            "chunk_text": chunk.chunk_text,
+            "chunk_preview": chunk.chunk_text[:200],  # First 200 chars
+            "token_count": chunk.token_count,
+            "pages": chunk.pages,
+            "metadata": chunk.metadata,
         }
 
 

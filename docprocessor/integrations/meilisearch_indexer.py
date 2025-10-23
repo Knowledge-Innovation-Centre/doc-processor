@@ -5,7 +5,7 @@ Meilisearch integration for document indexing.
 """
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class MeiliSearchIndexer:
         url: str,
         api_key: str,
         index_prefix: Optional[str] = None,
-        client: Optional[Any] = None
+        client: Optional[Any] = None,
     ):
         """
         Initialize the Meilisearch indexer.
@@ -59,10 +59,7 @@ class MeiliSearchIndexer:
         return self._get_prefixed_index_name(base_name)
 
     def index_chunks(
-        self,
-        chunks: List[Dict[str, Any]],
-        index_name: str,
-        primary_key: str = "id"
+        self, chunks: List[Dict[str, Any]], index_name: str, primary_key: str = "id"
     ) -> Dict[str, Any]:
         """
         Index document chunks to Meilisearch.
@@ -87,10 +84,7 @@ class MeiliSearchIndexer:
             raise
 
     def index_document(
-        self,
-        document: Dict[str, Any],
-        index_name: str,
-        primary_key: str = "id"
+        self, document: Dict[str, Any], index_name: str, primary_key: str = "id"
     ) -> Dict[str, Any]:
         """
         Index a single document to Meilisearch.
@@ -106,11 +100,7 @@ class MeiliSearchIndexer:
         return self.index_chunks([document], index_name, primary_key)
 
     def search(
-        self,
-        query: str,
-        index_name: str,
-        filters: Optional[str] = None,
-        limit: int = 20
+        self, query: str, index_name: str, filters: Optional[str] = None, limit: int = 20
     ) -> Dict[str, Any]:
         """
         Search documents in an index.
@@ -133,11 +123,7 @@ class MeiliSearchIndexer:
 
         return index.search(query, search_params)
 
-    def delete_document(
-        self,
-        document_id: str,
-        index_name: str
-    ) -> Dict[str, Any]:
+    def delete_document(self, document_id: str, index_name: str) -> Dict[str, Any]:
         """
         Delete a document from an index.
 
@@ -152,11 +138,7 @@ class MeiliSearchIndexer:
         index = self.client.index(full_index_name)
         return index.delete_document(document_id)
 
-    def delete_documents_by_filter(
-        self,
-        filter_str: str,
-        index_name: str
-    ) -> Dict[str, Any]:
+    def delete_documents_by_filter(self, filter_str: str, index_name: str) -> Dict[str, Any]:
         """
         Delete documents matching a filter.
 
@@ -172,10 +154,7 @@ class MeiliSearchIndexer:
         return index.delete_documents({"filter": filter_str})
 
     def create_index(
-        self,
-        index_name: str,
-        primary_key: str = "id",
-        settings: Optional[Dict[str, Any]] = None
+        self, index_name: str, primary_key: str = "id", settings: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Create a new index with optional settings.

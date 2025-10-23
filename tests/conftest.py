@@ -2,10 +2,11 @@
 Pytest configuration and shared fixtures for docprocessor tests.
 """
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from typing import Any, Dict
+
+import pytest
 
 
 @pytest.fixture
@@ -47,22 +48,18 @@ def sample_txt_file(tmp_path, sample_text):
 @pytest.fixture
 def long_text():
     """Provide longer text for chunking tests."""
-    paragraphs = [
-        f"This is paragraph number {i}. " * 50
-        for i in range(20)
-    ]
+    paragraphs = [f"This is paragraph number {i}. " * 50 for i in range(20)]
     return "\n\n".join(paragraphs)
 
 
 @pytest.fixture
 def mock_llm_client():
     """Mock LLM client for testing."""
+
     class MockLLMClient:
         def complete_chat(self, messages: list, temperature: float = 0.3) -> Dict[str, Any]:
             """Mock LLM completion."""
-            return {
-                "content": "This is a mock summary of the document content."
-            }
+            return {"content": "This is a mock summary of the document content."}
 
     return MockLLMClient()
 
@@ -73,8 +70,8 @@ def pdf_with_text_content(tmp_path):
     # Note: This requires reportlab, which should be added as a dev dependency
     # For now, we'll skip this fixture if reportlab is not available
     try:
-        from reportlab.pdfgen import canvas
         from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
 
         pdf_path = tmp_path / "sample.pdf"
         c = canvas.Canvas(str(pdf_path), pagesize=letter)
@@ -92,6 +89,7 @@ def pdf_with_text_content(tmp_path):
 @pytest.fixture
 def mock_meilisearch_client():
     """Mock Meilisearch client for testing."""
+
     class MockIndex:
         def __init__(self, name):
             self.name = name

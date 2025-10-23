@@ -2,15 +2,15 @@
 Tests for configuration management.
 """
 
-import pytest
 import json
-import os
-from pathlib import Path
+
+import pytest
+
 from docprocessor.config import (
-    ProcessorConfig,
-    MeiliSearchConfig,
+    DEFAULT_MEILISEARCH_CONFIG,
     DEFAULT_PROCESSOR_CONFIG,
-    DEFAULT_MEILISEARCH_CONFIG
+    MeiliSearchConfig,
+    ProcessorConfig,
 )
 
 
@@ -39,7 +39,7 @@ class TestProcessorConfig:
             chunk_size=1024,
             chunk_overlap=100,
             summary_target_words=1000,
-            llm_temperature=0.7
+            llm_temperature=0.7,
         )
 
         assert config.ocr_enabled is False
@@ -102,10 +102,10 @@ class TestProcessorConfig:
             "chunk_size": 1024,
             "chunk_overlap": 100,
             "summary_target_words": 1000,
-            "llm_temperature": 0.7
+            "llm_temperature": 0.7,
         }
 
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             json.dump(config_data, f)
 
         config = ProcessorConfig.from_file(str(config_file))
@@ -131,11 +131,7 @@ class TestProcessorConfig:
 
     def test_to_file(self, tmp_path):
         """Test saving configuration to JSON file."""
-        config = ProcessorConfig(
-            chunk_size=1024,
-            chunk_overlap=100,
-            ocr_enabled=False
-        )
+        config = ProcessorConfig(chunk_size=1024, chunk_overlap=100, ocr_enabled=False)
 
         config_file = tmp_path / "output_config.json"
         config.to_file(str(config_file))
@@ -146,23 +142,20 @@ class TestProcessorConfig:
         with open(config_file) as f:
             loaded_data = json.load(f)
 
-        assert loaded_data['chunk_size'] == 1024
-        assert loaded_data['chunk_overlap'] == 100
-        assert loaded_data['ocr_enabled'] is False
+        assert loaded_data["chunk_size"] == 1024
+        assert loaded_data["chunk_overlap"] == 100
+        assert loaded_data["ocr_enabled"] is False
 
     def test_to_dict(self):
         """Test converting configuration to dictionary."""
-        config = ProcessorConfig(
-            chunk_size=1024,
-            ocr_enabled=False
-        )
+        config = ProcessorConfig(chunk_size=1024, ocr_enabled=False)
 
         config_dict = config.to_dict()
 
         assert isinstance(config_dict, dict)
-        assert config_dict['chunk_size'] == 1024
-        assert config_dict['ocr_enabled'] is False
-        assert 'chunk_overlap' in config_dict
+        assert config_dict["chunk_size"] == 1024
+        assert config_dict["ocr_enabled"] is False
+        assert "chunk_overlap" in config_dict
 
     def test_update(self):
         """Test updating configuration values."""
@@ -277,9 +270,9 @@ class TestMeiliSearchConfig:
         assert config.batch_size == 1000
         assert config.default_limit == 20
         assert config.default_offset == 0
-        assert 'chunk_text' in config.searchable_attributes
-        assert 'file_id' in config.filterable_attributes
-        assert 'chunk_number' in config.sortable_attributes
+        assert "chunk_text" in config.searchable_attributes
+        assert "file_id" in config.filterable_attributes
+        assert "chunk_number" in config.sortable_attributes
 
     def test_custom_initialization(self):
         """Test creating MeiliSearchConfig with custom values."""
@@ -288,7 +281,7 @@ class TestMeiliSearchConfig:
             api_key="secret_key",
             index_prefix="prod_",
             timeout=30,
-            batch_size=500
+            batch_size=500,
         )
 
         assert config.url == "http://search.example.com"
@@ -330,7 +323,7 @@ class TestMeiliSearchConfig:
         config = MeiliSearchConfig.from_env()
 
         # Should use default value
-        assert 'chunk_text' in config.searchable_attributes
+        assert "chunk_text" in config.searchable_attributes
 
     def test_from_env_custom_prefix(self, monkeypatch):
         """Test loading with custom environment variable prefix."""
@@ -348,10 +341,10 @@ class TestMeiliSearchConfig:
             "api_key": "secret",
             "index_prefix": "prod_",
             "timeout": 30,
-            "batch_size": 2000
+            "batch_size": 2000,
         }
 
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             json.dump(config_data, f)
 
         config = MeiliSearchConfig.from_file(str(config_file))
@@ -369,20 +362,16 @@ class TestMeiliSearchConfig:
 
     def test_to_dict(self):
         """Test converting configuration to dictionary."""
-        config = MeiliSearchConfig(
-            url="http://example.com",
-            api_key="secret",
-            index_prefix="test_"
-        )
+        config = MeiliSearchConfig(url="http://example.com", api_key="secret", index_prefix="test_")
 
         config_dict = config.to_dict()
 
         assert isinstance(config_dict, dict)
-        assert config_dict['url'] == "http://example.com"
-        assert config_dict['api_key'] == "secret"
-        assert config_dict['index_prefix'] == "test_"
-        assert 'timeout' in config_dict
-        assert 'searchable_attributes' in config_dict
+        assert config_dict["url"] == "http://example.com"
+        assert config_dict["api_key"] == "secret"
+        assert config_dict["index_prefix"] == "test_"
+        assert "timeout" in config_dict
+        assert "searchable_attributes" in config_dict
 
     def test_default_config_constant(self):
         """Test DEFAULT_MEILISEARCH_CONFIG is accessible."""

@@ -2,8 +2,9 @@
 Tests for DocumentProcessor main API.
 """
 
+
 import pytest
-from pathlib import Path
+
 from docprocessor import DocumentProcessor, ProcessResult
 from docprocessor.core.extractor import ContentExtractionError
 
@@ -23,10 +24,7 @@ class TestDocumentProcessor:
     def test_init_custom_params(self):
         """Test processor initialization with custom parameters."""
         processor = DocumentProcessor(
-            ocr_enabled=False,
-            chunk_size=1024,
-            chunk_overlap=100,
-            summary_target_words=300
+            ocr_enabled=False, chunk_size=1024, chunk_overlap=100, summary_target_words=300
         )
 
         assert processor.ocr_enabled is False
@@ -39,10 +37,7 @@ class TestDocumentProcessor:
         processor = DocumentProcessor()
 
         result = processor.process(
-            file_path=sample_txt_file,
-            extract_text=True,
-            chunk=False,
-            summarize=False
+            file_path=sample_txt_file, extract_text=True, chunk=False, summarize=False
         )
 
         assert isinstance(result, ProcessResult)
@@ -56,10 +51,7 @@ class TestDocumentProcessor:
         processor = DocumentProcessor()
 
         result = processor.process(
-            file_path=sample_txt_file,
-            extract_text=True,
-            chunk=True,
-            summarize=False
+            file_path=sample_txt_file, extract_text=True, chunk=True, summarize=False
         )
 
         assert isinstance(result, ProcessResult)
@@ -73,10 +65,7 @@ class TestDocumentProcessor:
         processor = DocumentProcessor(llm_client=mock_llm_client)
 
         result = processor.process(
-            file_path=sample_txt_file,
-            extract_text=True,
-            chunk=True,
-            summarize=True
+            file_path=sample_txt_file, extract_text=True, chunk=True, summarize=True
         )
 
         assert isinstance(result, ProcessResult)
@@ -95,7 +84,7 @@ class TestDocumentProcessor:
             chunk=True,
             file_id="test-file-123",
             output_id="test-output-456",
-            project_id=789
+            project_id=789,
         )
 
         assert len(result.chunks) > 0
@@ -109,10 +98,7 @@ class TestDocumentProcessor:
         processor = DocumentProcessor()
 
         with pytest.raises(ContentExtractionError):
-            processor.process(
-                file_path="/nonexistent/file.txt",
-                extract_text=True
-            )
+            processor.process(file_path="/nonexistent/file.txt", extract_text=True)
 
     def test_extract_text_method(self, sample_txt_file):
         """Test extract_text convenience method."""
@@ -121,20 +107,16 @@ class TestDocumentProcessor:
         extraction = processor.extract_text(sample_txt_file)
 
         assert isinstance(extraction, dict)
-        assert 'text' in extraction
-        assert 'page_count' in extraction
-        assert 'metadata' in extraction
-        assert len(extraction['text']) > 0
+        assert "text" in extraction
+        assert "page_count" in extraction
+        assert "metadata" in extraction
+        assert len(extraction["text"]) > 0
 
     def test_chunk_text_method(self, sample_text):
         """Test chunk_text convenience method."""
         processor = DocumentProcessor()
 
-        chunks = processor.chunk_text(
-            text=sample_text,
-            file_id="test-123",
-            filename="test.txt"
-        )
+        chunks = processor.chunk_text(text=sample_text, file_id="test-123", filename="test.txt")
 
         assert len(chunks) > 0
         for chunk in chunks:
@@ -146,10 +128,7 @@ class TestDocumentProcessor:
         """Test summarize_text convenience method."""
         processor = DocumentProcessor(llm_client=mock_llm_client)
 
-        summary = processor.summarize_text(
-            text=sample_text,
-            filename="test.txt"
-        )
+        summary = processor.summarize_text(text=sample_text, filename="test.txt")
 
         assert isinstance(summary, str)
         assert len(summary) > 0
@@ -158,11 +137,7 @@ class TestDocumentProcessor:
         """Test summarize_text with fallback when no LLM client."""
         processor = DocumentProcessor()  # No LLM client
 
-        summary = processor.summarize_text(
-            text=sample_text,
-            filename="test.txt",
-            use_fallback=True
-        )
+        summary = processor.summarize_text(text=sample_text, filename="test.txt", use_fallback=True)
 
         assert isinstance(summary, str)
         assert len(summary) > 0
@@ -171,20 +146,16 @@ class TestDocumentProcessor:
         """Test converting chunks to search document format."""
         processor = DocumentProcessor()
 
-        result = processor.process(
-            file_path=sample_txt_file,
-            extract_text=True,
-            chunk=True
-        )
+        result = processor.process(file_path=sample_txt_file, extract_text=True, chunk=True)
 
         search_docs = processor.chunks_to_search_documents(result.chunks)
 
         assert len(search_docs) == len(result.chunks)
         for doc in search_docs:
-            assert 'id' in doc
-            assert 'chunk_text' in doc
-            assert 'file_id' in doc
-            assert 'chunk_number' in doc
+            assert "id" in doc
+            assert "chunk_text" in doc
+            assert "file_id" in doc
+            assert "chunk_number" in doc
 
     def test_process_empty_file(self, tmp_path):
         """Test processing empty file."""
@@ -193,11 +164,7 @@ class TestDocumentProcessor:
 
         processor = DocumentProcessor()
 
-        result = processor.process(
-            file_path=empty_file,
-            extract_text=True,
-            chunk=True
-        )
+        result = processor.process(file_path=empty_file, extract_text=True, chunk=True)
 
         assert result.text == ""
         assert len(result.chunks) == 0
@@ -210,7 +177,7 @@ class TestDocumentProcessor:
             summary="test summary",
             metadata={"key": "value"},
             page_count=5,
-            chunk_count=10
+            chunk_count=10,
         )
 
         assert result.text == "test text"

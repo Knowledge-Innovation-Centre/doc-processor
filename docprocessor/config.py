@@ -5,11 +5,11 @@ Provides centralized configuration with support for environment variables
 and configuration files.
 """
 
-import os
 import json
-from dataclasses import dataclass, field, asdict
-from typing import Optional, Dict, Any
+import os
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any, Dict
 
 
 @dataclass
@@ -59,17 +59,17 @@ class ProcessorConfig:
 
         # Map of field names to their types
         type_map = {
-            'ocr_enabled': bool,
-            'chunk_size': int,
-            'chunk_overlap': int,
-            'min_chunk_size': int,
-            'max_chunk_size': int,
-            'summary_target_words': int,
-            'llm_temperature': float,
-            'max_retries': int,
-            'timeout': int,
-            'log_level': str,
-            'log_format': str,
+            "ocr_enabled": bool,
+            "chunk_size": int,
+            "chunk_overlap": int,
+            "min_chunk_size": int,
+            "max_chunk_size": int,
+            "summary_target_words": int,
+            "llm_temperature": float,
+            "max_retries": int,
+            "timeout": int,
+            "log_level": str,
+            "log_format": str,
         }
 
         for field_name, field_type in type_map.items():
@@ -79,7 +79,7 @@ class ProcessorConfig:
             if env_value is not None:
                 # Convert string to appropriate type
                 if field_type == bool:
-                    config_dict[field_name] = env_value.lower() in ('true', '1', 'yes')
+                    config_dict[field_name] = env_value.lower() in ("true", "1", "yes")
                 elif field_type == int:
                     config_dict[field_name] = int(env_value)
                 elif field_type == float:
@@ -123,7 +123,7 @@ class ProcessorConfig:
         """
         config_dict = asdict(self)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(config_dict, f, indent=2)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -178,7 +178,7 @@ class ProcessorConfig:
         if self.timeout <= 0:
             raise ValueError("timeout must be positive")
 
-        valid_log_levels = {'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'}
+        valid_log_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
         if self.log_level.upper() not in valid_log_levels:
             raise ValueError(f"log_level must be one of {valid_log_levels}")
 
@@ -198,11 +198,11 @@ class MeiliSearchConfig:
     default_offset: int = 0
 
     # Index settings
-    searchable_attributes: list = field(default_factory=lambda: ['chunk_text', 'filename'])
-    filterable_attributes: list = field(default_factory=lambda: [
-        'file_id', 'project_id', 'chunk_number', 'pages'
-    ])
-    sortable_attributes: list = field(default_factory=lambda: ['chunk_number'])
+    searchable_attributes: list = field(default_factory=lambda: ["chunk_text", "filename"])
+    filterable_attributes: list = field(
+        default_factory=lambda: ["file_id", "project_id", "chunk_number", "pages"]
+    )
+    sortable_attributes: list = field(default_factory=lambda: ["chunk_number"])
 
     @classmethod
     def from_env(cls, prefix: str = "MEILISEARCH_") -> "MeiliSearchConfig":
@@ -219,13 +219,13 @@ class MeiliSearchConfig:
 
         # Simple string/int fields
         simple_fields = {
-            'url': str,
-            'api_key': str,
-            'index_prefix': str,
-            'timeout': int,
-            'batch_size': int,
-            'default_limit': int,
-            'default_offset': int,
+            "url": str,
+            "api_key": str,
+            "index_prefix": str,
+            "timeout": int,
+            "batch_size": int,
+            "default_limit": int,
+            "default_offset": int,
         }
 
         for field_name, field_type in simple_fields.items():
@@ -239,7 +239,7 @@ class MeiliSearchConfig:
                     config_dict[field_name] = env_value
 
         # List fields (JSON encoded)
-        for list_field in ['searchable_attributes', 'filterable_attributes', 'sortable_attributes']:
+        for list_field in ["searchable_attributes", "filterable_attributes", "sortable_attributes"]:
             env_var = f"{prefix}{list_field.upper()}"
             env_value = os.getenv(env_var)
 

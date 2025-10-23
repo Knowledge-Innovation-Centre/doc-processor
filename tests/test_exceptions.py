@@ -3,18 +3,19 @@ Tests for custom exception classes.
 """
 
 import pytest
+
 from docprocessor.exceptions import (
+    ChunkingError,
+    ConfigurationError,
     DocProcessorError,
     ExtractionError,
-    ChunkingError,
-    SummarizationError,
     IndexingError,
-    ConfigurationError,
-    ValidationError,
+    LLMError,
     OCRError,
     PDFProcessingError,
-    LLMError,
-    SearchError
+    SearchError,
+    SummarizationError,
+    ValidationError,
 )
 
 
@@ -226,7 +227,7 @@ class TestExceptionHierarchy:
             OCRError,
             PDFProcessingError,
             LLMError,
-            SearchError
+            SearchError,
         ]
 
         for exc_class in exceptions:
@@ -273,7 +274,7 @@ class TestExceptionHierarchy:
             SummarizationError("test"),
             IndexingError("test"),
             OCRError("test"),
-            LLMError("test")
+            LLMError("test"),
         ]
 
         for exc in exceptions_to_test:

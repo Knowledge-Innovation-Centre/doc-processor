@@ -7,13 +7,14 @@ Generates concise summaries of documents for semantic search and document discov
 """
 
 import logging
-from typing import Dict, Any, Optional, Callable
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class SummarizationError(Exception):
     """Raised when summarization fails."""
+
     pass
 
 
@@ -25,10 +26,7 @@ class DocumentSummarizer:
     """
 
     def __init__(
-        self,
-        llm_client: Optional[Any] = None,
-        target_words: int = 500,
-        temperature: float = 0.3
+        self, llm_client: Optional[Any] = None, target_words: int = 500, temperature: float = 0.3
     ):
         """
         Initialize the summarizer.
@@ -43,12 +41,7 @@ class DocumentSummarizer:
         self.temperature = temperature
         self.llm_client = llm_client
 
-    def summarize(
-        self,
-        text: str,
-        filename: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> str:
+    def summarize(self, text: str, filename: str, metadata: Optional[Dict[str, Any]] = None) -> str:
         """
         Generate a summary of the document.
 
@@ -75,7 +68,9 @@ class DocumentSummarizer:
             # Truncate very long documents to save on API costs
             max_input_length = 30000  # ~7500 tokens
             if len(text) > max_input_length:
-                logger.info(f"Truncating long document from {len(text)} to {max_input_length} chars")
+                logger.info(
+                    f"Truncating long document from {len(text)} to {max_input_length} chars"
+                )
                 text = text[:max_input_length] + "\n\n[Document truncated for summarization]"
 
             prompt = self._build_prompt(text, filename)
@@ -90,7 +85,10 @@ class DocumentSummarizer:
 
     def _build_prompt(self, text: str, filename: str) -> str:
         """Build the prompt for the LLM."""
-        return f"""You are a document summarization assistant. Generate a comprehensive {self.target_words}-word summary of the following document.
+        return (
+            f"""You are a document summarization assistant. """
+            f"""Generate a comprehensive {self.target_words}-word summary """
+            f"""of the following document.
 
 The summary should:
 - Capture the main topics, themes, and key points
@@ -105,18 +103,19 @@ Content:
 {text}
 
 Generate a {self.target_words}-word summary:"""
+        )
 
     def _call_llm(self, prompt: str) -> str:
         """Call the LLM to generate summary."""
         messages = [
             {
                 "role": "system",
-                "content": "You are a professional document summarization assistant. Generate clear, accurate summaries that capture key information."
+                "content": (
+                    "You are a professional document summarization assistant. "
+                    "Generate clear, accurate summaries that capture key information."
+                ),
             },
-            {
-                "role": "user",
-                "content": prompt
-            }
+            {"role": "user", "content": prompt},
         ]
 
         try:
@@ -124,8 +123,7 @@ Generate a {self.target_words}-word summary:"""
             # Expects a method like: complete_chat(messages=..., temperature=...)
             # Returns: {"content": "summary text"}
             response = self.llm_client.complete_chat(
-                messages=messages,
-                temperature=self.temperature
+                messages=messages, temperature=self.temperature
             )
 
             summary = response.get("content", "").strip()
@@ -140,10 +138,7 @@ Generate a {self.target_words}-word summary:"""
             raise SummarizationError(f"LLM call failed: {str(e)}")
 
     def summarize_with_fallback(
-        self,
-        text: str,
-        filename: str,
-        metadata: Optional[Dict[str, Any]] = None
+        self, text: str, filename: str, metadata: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Summarize with automatic fallback to truncation.
@@ -174,9 +169,9 @@ Generate a {self.target_words}-word summary:"""
 
         # Truncate at sentence boundary
         truncated = text[:preview_length]
-        last_period = truncated.rfind('. ')
+        last_period = truncated.rfind(". ")
 
         if last_period > preview_length // 2:
-            return truncated[:last_period + 1] + " [...]"
+            return truncated[: last_period + 1] + " [...]"
 
         return truncated + " [...]"

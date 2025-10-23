@@ -7,9 +7,9 @@ Designed for semantic search and document analysis workflows.
 
 __version__ = "1.0.0"
 
-from .processor import DocumentProcessor, ProcessResult
-from .integrations.meilisearch_indexer import MeiliSearchIndexer
 from .core.chunker import DocumentChunk
+from .integrations.meilisearch_indexer import MeiliSearchIndexer
+from .processor import DocumentProcessor, ProcessResult
 
 __all__ = [
     "DocumentProcessor",

@@ -2,8 +2,8 @@
 Tests for DocumentChunker.
 """
 
-import pytest
-from docprocessor.core.chunker import DocumentChunker, DocumentChunk
+
+from docprocessor.core.chunker import DocumentChunk, DocumentChunker
 
 
 class TestDocumentChunker:
@@ -19,11 +19,7 @@ class TestDocumentChunker:
 
     def test_init_custom_params(self):
         """Test chunker initialization with custom params."""
-        chunker = DocumentChunker(
-            chunk_size=1024,
-            chunk_overlap=100,
-            min_chunk_size=200
-        )
+        chunker = DocumentChunker(chunk_size=1024, chunk_overlap=100, min_chunk_size=200)
 
         assert chunker.chunk_size == 1024
         assert chunker.chunk_overlap == 100
@@ -38,7 +34,7 @@ class TestDocumentChunker:
             file_id="file-123",
             output_id="output-456",
             project_id=789,
-            filename="test.txt"
+            filename="test.txt",
         )
 
         assert len(chunks) > 0
@@ -53,7 +49,7 @@ class TestDocumentChunker:
             file_id="file-123",
             output_id="output-456",
             project_id=789,
-            filename="test.txt"
+            filename="test.txt",
         )
 
         for i, chunk in enumerate(chunks):
@@ -78,7 +74,7 @@ class TestDocumentChunker:
             file_id="file-123",
             output_id="output-456",
             project_id=789,
-            filename="test.txt"
+            filename="test.txt",
         )
 
         assert len(chunks) == 0
@@ -88,11 +84,7 @@ class TestDocumentChunker:
         chunker = DocumentChunker()
 
         chunks = chunker.chunk_document(
-            text="",
-            file_id="file-123",
-            output_id="output-456",
-            project_id=789,
-            filename="test.txt"
+            text="", file_id="file-123", output_id="output-456", project_id=789, filename="test.txt"
         )
 
         assert len(chunks) == 0
@@ -108,7 +100,7 @@ class TestDocumentChunker:
             output_id="output-456",
             project_id=789,
             filename="test.txt",
-            extraction_metadata=metadata
+            extraction_metadata=metadata,
         )
 
         assert len(chunks) > 0
@@ -118,18 +110,21 @@ class TestDocumentChunker:
     def test_chunk_text_with_page_markers(self):
         """Test chunking text with PDF page markers."""
         chunker = DocumentChunker()
-        text_with_markers = """
+        text_with_markers = (
+            """
         <page_1>This is page one content.
         <page_2>This is page two content.
         <page_3>This is page three content.
-        """ * 10
+        """
+            * 10
+        )
 
         chunks = chunker.chunk_document(
             text=text_with_markers,
             file_id="file-123",
             output_id="output-456",
             project_id=789,
-            filename="test.pdf"
+            filename="test.pdf",
         )
 
         assert len(chunks) > 0
@@ -196,28 +191,28 @@ class TestDocumentChunker:
             file_id="file-123",
             output_id="output-456",
             project_id=789,
-            filename="test.txt"
+            filename="test.txt",
         )
 
         assert len(chunks) > 0
         search_doc = chunker.to_search_document(chunks[0])
 
         assert isinstance(search_doc, dict)
-        assert 'id' in search_doc
-        assert 'file_id' in search_doc
-        assert 'output_id' in search_doc
-        assert 'project_id' in search_doc
-        assert 'filename' in search_doc
-        assert 'chunk_number' in search_doc
-        assert 'total_chunks' in search_doc
-        assert 'chunk_text' in search_doc
-        assert 'chunk_preview' in search_doc
-        assert 'token_count' in search_doc
-        assert 'pages' in search_doc
-        assert 'metadata' in search_doc
+        assert "id" in search_doc
+        assert "file_id" in search_doc
+        assert "output_id" in search_doc
+        assert "project_id" in search_doc
+        assert "filename" in search_doc
+        assert "chunk_number" in search_doc
+        assert "total_chunks" in search_doc
+        assert "chunk_text" in search_doc
+        assert "chunk_preview" in search_doc
+        assert "token_count" in search_doc
+        assert "pages" in search_doc
+        assert "metadata" in search_doc
 
         # Check preview is truncated
-        assert len(search_doc['chunk_preview']) <= 200
+        assert len(search_doc["chunk_preview"]) <= 200
 
     def test_split_text_semantic(self, long_text):
         """Test semantic text splitting."""
@@ -246,7 +241,7 @@ class TestDocumentChunker:
             file_id="file-123",
             output_id="output-456",
             project_id=789,
-            filename="test.txt"
+            filename="test.txt",
         )
 
         # Check if consecutive chunks have overlapping content
@@ -275,7 +270,7 @@ class TestDocumentChunk:
             chunk_text="This is chunk text.",
             token_count=20,
             pages=[1, 2],
-            metadata={"key": "value"}
+            metadata={"key": "value"},
         )
 
         assert chunk.chunk_id == "chunk-123"
