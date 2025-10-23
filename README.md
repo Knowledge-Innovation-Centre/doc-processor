@@ -270,7 +270,7 @@ Each component can be used independently or through the unified `DocumentProcess
 
 ## Requirements
 
-**Python**: 3.8+ (tested on 3.8, 3.9, 3.10, 3.11, 3.12)
+**Python**: 3.10+ (tested on 3.10, 3.11, 3.12)
 
 **Core Dependencies:**
 - pdfminer.six - PDF text extraction
