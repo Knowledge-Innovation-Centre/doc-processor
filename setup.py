@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="docprocessor",
-    version="1.0.0",
+    version="1.1.0",
     author="Knowledge Innovation Centre",
     author_email="info@knowledgeinnovation.eu",
     description="A Python library for document processing with OCR, chunking, and summarization",
@@ -32,6 +32,7 @@ setup(
         "opencv-python>=4.9.0",
         "Pillow>=10.2.0",
         "python-docx>=1.1.0",
+        "python-pptx>=0.6.21",
         "langchain-text-splitters>=0.2.0",
         "tiktoken>=0.7.0",
         "numpy>=1.24.0",

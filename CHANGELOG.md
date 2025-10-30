@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-10-30
+
+### Added
+- **PowerPoint (PPTX) support**: Extract text from PowerPoint presentations
+  - Text extraction from all slides with slide separators
+  - Table content extraction within slides
+  - Speaker notes extraction
+  - Metadata including slide count, shape count, and table detection
+- `python-pptx>=0.6.21` dependency for PPTX processing
+- Comprehensive test suite for PPTX extraction (6 new tests):
+  - Test for missing dependency handling
+  - Test for slide content extraction
+  - Test for table extraction
+  - Test for speaker notes extraction
+  - Test for empty presentations
+  - Test for corrupted file handling
+- Updated documentation to include PPTX in supported formats
+
+### Changed
+- Updated `ContentExtractor` to support `.pptx` file extension
+- Enhanced README.md to list PPTX in multi-format support and dependencies
+
+## [Earlier Unreleased]
+
 ### Added
 - Production-grade test suite with 144 tests and 81% coverage
 - Configuration management module with ProcessorConfig and MeiliSearchConfig
@@ -60,5 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Flexible Integration**: BYOC pattern allows any LLM provider
 - **Environment Isolation**: Index prefixing for multi-environment deployments
 
-[Unreleased]: https://github.com/Knowledge-Innovation-Centre/doc-processor/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Knowledge-Innovation-Centre/doc-processor/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Knowledge-Innovation-Centre/doc-processor/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Knowledge-Innovation-Centre/doc-processor/releases/tag/v1.0.0

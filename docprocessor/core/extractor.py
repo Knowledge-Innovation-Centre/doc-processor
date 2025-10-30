@@ -29,6 +29,7 @@ class ContentExtractor:
     - PDF: Using OCR pipeline (extract_pdf_for_llm)
     - TXT/MD: Direct text read
     - DOCX: python-docx extraction
+    - PPTX: python-pptx extraction
     - Images: OCR fallback
     """
 
@@ -38,6 +39,7 @@ class ContentExtractor:
             ".txt",
             ".md",
             ".docx",
+            ".pptx",
             ".png",
             ".jpg",
             ".jpeg",
@@ -77,6 +79,8 @@ class ContentExtractor:
                 return self._extract_text(file_path)
             elif extension == ".docx":
                 return self._extract_docx(file_path)
+            elif extension == ".pptx":
+                return self._extract_pptx(file_path)
             elif extension in {".png", ".jpg", ".jpeg", ".gif", ".bmp"}:
                 return self._extract_image(file_path)
             else:
@@ -164,6 +168,74 @@ class ContentExtractor:
         except Exception as e:
             logger.error(f"Error extracting DOCX: {e}")
             raise ContentExtractionError(f"Failed to extract DOCX: {str(e)}")
+
+    def _extract_pptx(self, file_path: Path) -> Dict[str, Any]:
+        """Extract text from PPTX files."""
+        logger.info(f"Extracting PPTX: {file_path}")
+
+        try:
+            from pptx import Presentation
+        except ImportError:
+            raise ContentExtractionError(
+                "python-pptx not installed. Install with: pip install python-pptx"
+            )
+
+        try:
+            prs = Presentation(str(file_path))
+
+            # Extract text from all slides
+            all_text = []
+            slide_count = 0
+            total_shapes = 0
+            has_tables = False
+
+            for slide in prs.slides:
+                slide_count += 1
+                slide_text = []
+
+                # Extract text from shapes
+                for shape in slide.shapes:
+                    total_shapes += 1
+
+                    # Handle text frames
+                    if hasattr(shape, "text") and shape.text.strip():
+                        slide_text.append(shape.text.strip())
+
+                    # Handle tables
+                    if shape.has_table:
+                        has_tables = True
+                        table_data = []
+                        for row in shape.table.rows:
+                            row_data = [cell.text.strip() for cell in row.cells]
+                            table_data.append(" | ".join(row_data))
+                        slide_text.append("\n".join(table_data))
+
+                # Add slide text with separator
+                if slide_text:
+                    all_text.append(f"--- Slide {slide_count} ---\n" + "\n\n".join(slide_text))
+
+                # Extract notes if present
+                if slide.has_notes_slide:
+                    notes_text = slide.notes_slide.notes_text_frame.text.strip()
+                    if notes_text:
+                        all_text.append(f"[Notes for Slide {slide_count}]\n{notes_text}")
+
+            text = "\n\n".join(all_text)
+
+            return {
+                "text": text,
+                "page_count": slide_count,  # Use slide count as "pages"
+                "metadata": {
+                    "format": "pptx",
+                    "extraction_method": "python-pptx",
+                    "slide_count": slide_count,
+                    "shape_count": total_shapes,
+                    "has_tables": has_tables,
+                },
+            }
+        except Exception as e:
+            logger.error(f"Error extracting PPTX: {e}")
+            raise ContentExtractionError(f"Failed to extract PPTX: {str(e)}")
 
     def _extract_image(self, file_path: Path) -> Dict[str, Any]:
         """Extract text from images using OCR."""

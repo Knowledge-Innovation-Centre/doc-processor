@@ -20,7 +20,7 @@ A Python library for processing documents with OCR, semantic chunking, and LLM-b
 
 ## Features
 
-- **Multi-format Support**: PDF, DOCX, TXT, MD, and images (PNG, JPG, GIF, BMP)
+- **Multi-format Support**: PDF, DOCX, PPTX, TXT, MD, and images (PNG, JPG, GIF, BMP)
 - **Intelligent OCR**: Layout-aware PDF text extraction with OCR fallback for images
 - **Semantic Chunking**: Smart text segmentation using LangChain's RecursiveCharacterTextSplitter
 - **LLM Summarization**: Generate concise document summaries (with fallback)
@@ -279,6 +279,7 @@ Each component can be used independently or through the unified `DocumentProcess
 - opencv-python - Image preprocessing
 - Pillow - Image handling
 - python-docx - DOCX extraction
+- python-pptx - PPTX extraction
 - langchain-text-splitters - Semantic chunking
 - tiktoken - Token counting
 

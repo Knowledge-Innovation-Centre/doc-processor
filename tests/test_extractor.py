@@ -81,6 +81,7 @@ class TestContentExtractor:
         assert extractor.is_supported(".pdf") is True
         assert extractor.is_supported(".txt") is True
         assert extractor.is_supported(".docx") is True
+        assert extractor.is_supported(".pptx") is True
         assert extractor.is_supported(".xyz") is False
 
     def test_extract_unsupported_file(self, tmp_path):
@@ -268,6 +269,176 @@ class TestContentExtractor:
 
         with pytest.raises(ContentExtractionError, match="Failed to extract"):
             extractor.extract(bad_docx)
+
+    def test_extract_pptx_not_installed(self, tmp_path, monkeypatch):
+        """Test PPTX extraction when python-pptx is not installed."""
+        pptx_file = tmp_path / "test.pptx"
+        pptx_file.touch()
+
+        extractor = ContentExtractor()
+
+        # Mock pptx import to raise ImportError
+        import builtins
+
+        original_import = builtins.__import__
+
+        def mock_import(name, *args, **kwargs):
+            if name == "pptx":
+                raise ImportError("No module named 'pptx'")
+            return original_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", mock_import)
+
+        with pytest.raises(ContentExtractionError, match="python-pptx not installed"):
+            extractor._extract_pptx(pptx_file)
+
+    def test_extract_pptx_with_content(self, tmp_path):
+        """Test extracting text from PPTX with slides and content."""
+        try:
+            from pptx import Presentation
+        except ImportError:
+            pytest.skip("python-pptx not installed")
+
+        # Create PPTX with content
+        pptx_file = tmp_path / "test.pptx"
+        prs = Presentation()
+
+        # Add slide 1 with title and content
+        slide_layout = prs.slide_layouts[1]  # Title and content layout
+        slide1 = prs.slides.add_slide(slide_layout)
+        slide1.shapes.title.text = "First Slide Title"
+        slide1.placeholders[1].text = "This is the content of the first slide."
+
+        # Add slide 2 with different content
+        slide2 = prs.slides.add_slide(slide_layout)
+        slide2.shapes.title.text = "Second Slide Title"
+        slide2.placeholders[1].text = "This is the content of the second slide."
+
+        prs.save(str(pptx_file))
+
+        extractor = ContentExtractor()
+        result = extractor.extract(pptx_file)
+
+        assert "text" in result
+        assert "First Slide Title" in result["text"]
+        assert "Second Slide Title" in result["text"]
+        assert "first slide" in result["text"]
+        assert "second slide" in result["text"]
+        assert result["page_count"] == 2
+        assert result["metadata"]["format"] == "pptx"
+        assert result["metadata"]["extraction_method"] == "python-pptx"
+        assert result["metadata"]["slide_count"] == 2
+        assert result["metadata"]["shape_count"] > 0
+
+    def test_extract_pptx_with_tables(self, tmp_path):
+        """Test extracting text from PPTX with tables."""
+        try:
+            from pptx import Presentation
+            from pptx.util import Inches
+        except ImportError:
+            pytest.skip("python-pptx not installed")
+
+        # Create PPTX with table
+        pptx_file = tmp_path / "table_test.pptx"
+        prs = Presentation()
+
+        # Add slide with blank layout
+        blank_layout = prs.slide_layouts[6]  # Blank layout
+        slide = prs.slides.add_slide(blank_layout)
+
+        # Add a table
+        rows, cols = 3, 2
+        left = Inches(2)
+        top = Inches(2)
+        width = Inches(4)
+        height = Inches(2)
+
+        table_shape = slide.shapes.add_table(rows, cols, left, top, width, height)
+        table = table_shape.table
+
+        # Fill table with data
+        table.cell(0, 0).text = "Header 1"
+        table.cell(0, 1).text = "Header 2"
+        table.cell(1, 0).text = "Row 1 Col 1"
+        table.cell(1, 1).text = "Row 1 Col 2"
+        table.cell(2, 0).text = "Row 2 Col 1"
+        table.cell(2, 1).text = "Row 2 Col 2"
+
+        prs.save(str(pptx_file))
+
+        extractor = ContentExtractor()
+        result = extractor.extract(pptx_file)
+
+        assert "text" in result
+        assert "Header 1" in result["text"]
+        assert "Header 2" in result["text"]
+        assert "Row 1 Col 1" in result["text"]
+        assert result["metadata"]["has_tables"] is True
+
+    def test_extract_pptx_with_notes(self, tmp_path):
+        """Test extracting text from PPTX with speaker notes."""
+        try:
+            from pptx import Presentation
+        except ImportError:
+            pytest.skip("python-pptx not installed")
+
+        # Create PPTX with notes
+        pptx_file = tmp_path / "notes_test.pptx"
+        prs = Presentation()
+
+        slide_layout = prs.slide_layouts[1]
+        slide = prs.slides.add_slide(slide_layout)
+        slide.shapes.title.text = "Slide with Notes"
+
+        # Add speaker notes
+        notes_slide = slide.notes_slide
+        notes_text_frame = notes_slide.notes_text_frame
+        notes_text_frame.text = "These are important speaker notes for the presentation."
+
+        prs.save(str(pptx_file))
+
+        extractor = ContentExtractor()
+        result = extractor.extract(pptx_file)
+
+        assert "text" in result
+        assert "Slide with Notes" in result["text"]
+        assert "speaker notes" in result["text"]
+        assert "[Notes for Slide 1]" in result["text"]
+
+    def test_extract_pptx_empty(self, tmp_path):
+        """Test extracting empty PPTX file."""
+        try:
+            from pptx import Presentation
+        except ImportError:
+            pytest.skip("python-pptx not installed")
+
+        # Create empty PPTX
+        pptx_file = tmp_path / "empty.pptx"
+        prs = Presentation()
+        prs.save(str(pptx_file))
+
+        extractor = ContentExtractor()
+        result = extractor.extract(pptx_file)
+
+        assert "text" in result
+        assert result["page_count"] == 0
+        assert result["metadata"]["slide_count"] == 0
+
+    def test_extract_pptx_corruption(self, tmp_path):
+        """Test PPTX extraction handles corrupted files."""
+        try:
+            import pptx  # noqa: F401
+        except ImportError:
+            pytest.skip("python-pptx not installed")
+
+        # Create a corrupted PPTX file
+        bad_pptx = tmp_path / "corrupt.pptx"
+        bad_pptx.write_bytes(b"not a real pptx file")
+
+        extractor = ContentExtractor()
+
+        with pytest.raises(ContentExtractionError, match="Failed to extract"):
+            extractor.extract(bad_pptx)
 
 
 class TestContentExtractionError:
