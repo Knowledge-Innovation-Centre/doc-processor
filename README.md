@@ -276,7 +276,7 @@ Each component can be used independently or through the unified `DocumentProcess
 - pdfminer.six - PDF text extraction
 - pdf2image - PDF to image conversion
 - pytesseract - OCR engine
-- opencv-python - Image preprocessing
+- scikit-image - Image preprocessing
 - Pillow - Image handling
 - python-docx - DOCX extraction
 - python-pptx - PPTX extraction

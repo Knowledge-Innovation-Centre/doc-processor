@@ -76,7 +76,7 @@ Meilisearch is installed by default. If you don't need it:
 .. code-block:: bash
 
     pip install docprocessor --no-deps
-    pip install pdfminer.six pdf2image pytesseract opencv-python Pillow python-docx langchain-text-splitters tiktoken
+    pip install pdfminer.six pdf2image pytesseract scikit-image Pillow python-docx langchain-text-splitters tiktoken
 
 Development Tools
 ~~~~~~~~~~~~~~~~~
