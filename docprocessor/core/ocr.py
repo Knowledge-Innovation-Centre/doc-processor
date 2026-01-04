@@ -8,11 +8,11 @@ from typing import List
 
 import numpy as np
 import pytesseract
-from skimage.filters import threshold_otsu
 from pdf2image import convert_from_bytes
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine
 from PIL import Image
+from skimage.filters import threshold_otsu
 
 logger = logging.getLogger(__name__)
 
