@@ -6,13 +6,13 @@ from dataclasses import dataclass
 from io import BytesIO
 from typing import List
 
-import cv2
 import numpy as np
 import pytesseract
 from pdf2image import convert_from_bytes
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine
 from PIL import Image
+from skimage.filters import threshold_otsu
 
 logger = logging.getLogger(__name__)
 
@@ -190,9 +190,10 @@ def is_likely_table_column(element: TextElement, all_elements: List[TextElement]
 
 def preprocess_image(image: Image.Image) -> Image.Image:
     """
-    Optimize image for OCR: grayscale and threshold.
+    Optimize image for OCR: grayscale and Otsu thresholding.
     """
-    gray = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
-    # Apply Otsu thresholding
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    return Image.fromarray(thresh)
+    gray = image.convert("L")
+    gray_array = np.array(gray)
+    thresh_value = threshold_otsu(gray_array)
+    binary = (gray_array > thresh_value).astype(np.uint8) * 255
+    return Image.fromarray(binary)
